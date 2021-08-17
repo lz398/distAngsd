@@ -25,7 +25,7 @@ using namespace Eigen;
 
 void simnucleotidesinv(int Genotype[2],double simmat[4][4]);
 void simulateGLsTwoSpeciesWithInvSite(double RD, size_t numsites, double p_inv, double errorate, double tdiv, double t1, double t2, double **GLDATA,  double (*pijt)(double t, double *par, int from, int to), double *par);
-void testtwoDSFSWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p);
+void testtwoDSFSWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p, double par[9], const char* glfname, int isthreading, int dobinary, int r);
 double likeGLwithtwoDSFSWithInvSite(double twoDSFS[10][10], const double* x, double par[8]);
 double likelihoodforTWithInvSite(const double* x,const void *);
 double estimateTWithInvSite(double twoDSFS[10][10], double x[2], double parameters[]);
@@ -38,9 +38,9 @@ double likelihoodforTSEQ2DSFSWithInvSite(const double* x, const void *);
 void likeSEQwithtwoDSFSWithInvSite_grad(double SEQ2DSFS[4][4], const double* x, double *y, double par[8]);
 void likelihoodforTSEQ2DSFSWithInvSite_grad(const double* x, double* y);
 double estimateTSEQ2DSFSWithInvSite(double SEQ2DSFS[4][4], double x[2], double parameters[]);
-void testsimSEQ2DSFSWithInvSite(double RD, int numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p);
-void testsimSEQDATA_randomWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p);
-void testsimSEQDATA_consensusWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p);
+void testsimSEQ2DSFSWithInvSite(double RD, int numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p, double par[9], int isthreading);
+void testsimSEQDATA_randomWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p, double par[9]);
+void testsimSEQDATA_consensusWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p, double par[9]);
 void testGL_consensusWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p);
 void findmaxvec(double vec[], int n, vector<int> &indices);
 

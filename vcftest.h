@@ -15,10 +15,11 @@
 #include <string>
 #include <pthread.h>
 #include <cassert>
+#include "shared.h"
 
 using namespace std;
 
-typedef struct satan_t{
+typedef struct satan_double_t{
     char*fname;
     int minind;
     double minfreq;
@@ -28,7 +29,23 @@ typedef struct satan_t{
     vector<double *> mygl;
     vector<double> freqs;
     int nind;
-}satan;
+}satan_double;
+
+typedef struct satan_uchar_t{
+    char*fname;
+    int minind;
+    double minfreq;
+    string vcf_format_field;
+    string vcf_allele_field;
+    char *seek;
+    //vector<double *> mygl;
+    /*This is to save some precious space! The reason that this can be done since the genotype
+     likelihoods in vcf files are of low resolution anyway.*/
+    vector<uchar *> mygl;
+    vector<double> freqs;
+    int nind;
+}satan_uchar;
+
 //vector<satan> jobs;
 
 int findnuctypeindex(char* c1);
@@ -39,14 +56,42 @@ float pl2ln_f(int32_t& val);
 template <class T>
 bool same_val_vcf(T a, T b);
 bool is_nan_vcf(double x);
-double emFrequency(double *loglike, int numInds, int iter, double start, char *keep, int keepInd);
-size_t getgls(char*fname,vector<double *> &mygl, vector<double> &freqs,int minind,double minfreq, string &vcf_format_field, string &vcf_allele_field,char *seek);
-void *wrap(void *ptr);
-int wrap_nothreading(void *ptr);
-void *wrap2(void *);
-double ** readbcfvcf(char*fname,int &nind, int &nsites, vector<double> &freqs,int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek);
+
+//double emFrequency(double *loglike, int numInds, int iter, double start, char *keep, int keepInd);
+//size_t getgls(char*fname,vector<double *> &mygl, vector<double> &freqs,int minind,double minfreq, string &vcf_format_field, string &vcf_allele_field,char *seek);
+//void *wrap(void *ptr);
+//int wrap_nothreading(void *ptr);
+//void *wrap2(void *);
+//double ** readbcfvcf(const char*fname,int &nind, int &nsites, vector<double> &freqs,int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek);
+
+double emFrequency_double(double *loglike, int numInds, int iter, double start, char *keep, int keepInd);
+double emFrequency_uchar(uchar *pl_gl, int numInds, int iter, double start, char *keep, int keepInd);
+size_t getgls_double(char*fname,vector<double *> &mygl, vector<double> &freqs,int minind,double minfreq, string &vcf_format_field, string &vcf_allele_field,char *seek);
+size_t getgls_uchar(char*fname,vector<uchar *> &mygl, vector<double> &freqs,int minind,double minfreq, string &vcf_format_field, string &vcf_allele_field,char *seek);
+void *wrap_double(void *ptr);
+void *wrap_uchar(void *ptr);
+int wrap_nothreading_double(void *ptr);
+int wrap_nothreading_uchar(void *ptr);
+void *wrap2_double(void *);
+void *wrap2_uchar(void *);
+double ** readbcfvcf_double(char*fname,int &nind, size_t &nsites, vector<double> &freqs,int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek);
+uchar ** readbcfvcf_uchar(char*fname,int &nind, size_t &nsites, vector<double> &freqs,int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek);
+
+/*7. threading EM for 2DSFS algorithm **double and **uchar genotype likelood*/
+void EMStepfor2DSFS_uchar(double twoDSFS[10][10], double ESFS2[10][10], uchar **GLDATA, size_t numsites);
+double estimate2DSFS_EM_uchar(double twoDSFS[10][10], uchar **GLDATA, size_t numsites);
+void *athread_uchar(void *aptr);
+void EMStepfor2DSFS_threading_initial_uchar(size_t numsites,int rowL,int nthreads,vector<EMjob_uchar> &jobvec,uchar **GLDATA);
+void EMStepfor2DSFS_threading_uchar(pthread_t* mythd, int nthreads,vector<EMjob_uchar> &jobvec,uchar **GLDATA,double two2DSFS[10][10], size_t numsites);
+double estimate2DSFS_EM_threading_uchar(double twoDSFS[10][10], uchar **GLDATA, size_t numsites, int nthreads, int rowL);
+
+void EMStepfor2DSFS_double(double twoDSFS[10][10], double ESFS2[10][10], double **GLDATA, size_t numsites);
+double estimate2DSFS_EM_double(double twoDSFS[10][10], double **GLDATA, size_t numsites);
+void *athread_double(void *aptr);
+void EMStepfor2DSFS_threading_initial_double(size_t numsites,int rowL,int nthreads,vector<EMjob> &jobvec,double **GLDATA);
+void EMStepfor2DSFS_threading_double(pthread_t* mythd, int nthreads,vector<EMjob> &jobvec,double **GLDATA,double two2DSFS[10][10], size_t numsites);
+double estimate2DSFS_EM_threading_double(double twoDSFS[10][10], double **GLDATA, size_t numsites, int nthreads, int rowL);
 
 //vcf inference
-double vcftwoDSFS(char* fname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek);
-double vcfjointEM(char* fname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek, double* tt);
+double vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek, double par[9], int isthreading, int isuchar, int dobinary);
 #endif /* vcftest_h */

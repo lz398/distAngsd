@@ -12,6 +12,8 @@
 #include <ctime>
 #include <unistd.h>
 #include <chrono>
+#include<htslib/bgzf.h>
+#include<htslib/kstring.h>
 #include "shared.h"
 typedef Eigen::Matrix<double, 10, 10> Matrix10d;
 typedef Eigen::Matrix<double, 10, 1> Vector10d;
@@ -114,7 +116,7 @@ double estimateT(double twoDSFS[10][10], double *t, double parameters[]);
 /*Inference: Estimation of divergence time t based on joint genotype distribution + tree structure.*/
 double estimateT_m(double twoDSFS[10][10], double *t, double parameters[], double t1, double t2);
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
-double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate);
+double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], const char* glfname, int isthreading, int dobinary, int r);
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution + tree structure*/
 double testtwoDSFS_m(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate);
 
@@ -139,9 +141,7 @@ double testsimSEQDATA_v1(double RD, size_t numsites, double tdiv, double t1, dou
 
 /* 4. Joint nucleotide distribution method */
 /*A structure only for Joint nucleotide distribution method*/
-struct double4{
-    double vec[4];
-};
+
 /*Simulation: Generate a read of a true genotype with calling error rate e*/
 int simSEQs_per_read_v2(int genotypes[2], size_t site, int species, double e);
 /*Simulation: Gather different reads and calculate nucleotide likelihood per read for one site. In the future should be able to switch from Poisson distributed read depth to constant coverage, and deal with 0 read depth.*/
@@ -164,7 +164,7 @@ int EMAccelforNuc2DSFS(double SEQ2DSFS[4][4], double ESEQSFS2[4][4], vector<vect
 //Inference: Main EM algorithm for joint genotype distribution
 double estimateNuc2DSFS_EM(double SEQ2DSFS[4][4], vector<vector<double4> >&P0, vector<vector<double4> >&P1, size_t numsites);
 /* Simulation + Inference: Simulation and estimation of divergence time t based on joint selected nucleotide distribution*/
-double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate);
+double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], int isthreading);
 
 
 /* 5. Whole EM method for Inference*/
@@ -187,33 +187,16 @@ void EMlikelihoodforT(double **GLDATA, int* SDATA, size_t numsites, double tdiv0
 double testjointEM(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double* tt);
 
 /*6. threading EM for 2DSFS algorithm*/
-struct EMjob{
-    size_t index;
-    double **gls;
-    int *ss;
-    size_t start;
-    size_t len;
-    int rowlen;
-    double segESFS2[10][10];
-    double two2DSFS[10][10];
-};
 void *athread(void *aptr);
 void EMStepfor2DSFS_threading_initial(size_t numsites,int rowL,int nthreads,vector<EMjob> &jobvec,double **GLDATA, int *SDATA);
 void EMStepfor2DSFS_threading(pthread_t* mythd, int nthreads,vector<EMjob> &jobvec,double **GLDATA,double two2DSFS[10][10], size_t numsites, size_t eff_numsites);
 double estimate2DSFS_EM_threading(double twoDSFS[10][10], double **GLDATA, int* SDATA, size_t numsites, size_t eff_numsites, int nthreads, int rowL);
 
-struct EMjobforSEQ2DSFS{
-    size_t index;
-    size_t psum;
-    vector<vector<double4> > p0;
-    vector<vector<double4> > p1;
-    size_t start;
-    size_t len;
-    double segESEQSFS2[4][4];
-    double SEQ2DSFS[4][4];
-};
 void *bthread(void *aptr);
 void EMStepforNuc2DSFS_threading_initial(size_t numsites, int nthreads,vector<EMjobforSEQ2DSFS> &jobvec, vector<vector<double4> > &P0, vector<vector<double4> > &P1);
 void EMStepforNuc2DSFS_threading(pthread_t* mythd, int nthreads,vector<EMjobforSEQ2DSFS> &jobvec,double SEQ2DSFS[4][4], size_t numsites);
 double estimateNuc2DSFS_EM_threading(double SEQ2DSFS[4][4], vector<vector<double4> >&P0, vector<vector<double4> >&P1, size_t numsites,int nthreads);
+
+int gls_writer_double(const char* glfname, int dobinary, int nsites, double **gls);
+int gls_writer_uchar(const char* glfname, int dobinary, int nsites, uchar **gls);
 #endif

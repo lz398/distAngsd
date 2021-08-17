@@ -807,7 +807,7 @@ void simulateGLsTwoSpeciesSEQ_consensus(double RD, int numsites, double errorrat
     free(ancDATA);
 }
 
-double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, double t2, double errorrate)
+double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[8])
 {
     double t, MLV, parameters[8];
     
@@ -820,17 +820,23 @@ double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, do
 //    parameters[i]=1.0;
 //    for (int i=5;i<8; i++)
 //    parameters[i]=pi(i-5);
-    pi(0)=0.2184;
-    pi(1)=0.2606;
-    pi(2)=0.3265;
-    pi(3)=0.1946;
-    parameters[0]=2.0431;
-    parameters[1]=0.0821;
-    parameters[2]=0.0000;
-    parameters[3]=0.0670;
-    parameters[4]=0.0000;
-    for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+//    pi(0)=0.2184;
+//    pi(1)=0.2606;
+//    pi(2)=0.3265;
+//    pi(3)=0.1946;
+//    parameters[0]=2.0431;
+//    parameters[1]=0.0821;
+//    parameters[2]=0.0000;
+//    parameters[3]=0.0670;
+//    parameters[4]=0.0000;
+//    for (int i=5;i<8; i++)
+//    parameters[i]=pi(i-5);
+    for (int i=5;i<9;i++){
+        pi[i-5] = par[i];
+    }
+    for (int i=0;i<8;i++){
+        parameters[i] = par[i];
+    }
     
     
     //This codes tests the program if sampling a single nucleotide
@@ -859,7 +865,7 @@ double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, do
     return t;
 }
 
-double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1, double t2, double errorrate)
+double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9])
 {
     double t, MLV, parameters[8];
     
@@ -872,17 +878,23 @@ double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1,
 //    parameters[i]=1.0;
 //    for (int i=5;i<8; i++)
 //    parameters[i]=pi(i-5);
-    pi(0)=0.2184;
-    pi(1)=0.2606;
-    pi(2)=0.3265;
-    pi(3)=0.1946;
-    parameters[0]=2.0431;
-    parameters[1]=0.0821;
-    parameters[2]=0.0000;
-    parameters[3]=0.0670;
-    parameters[4]=0.0000;
-    for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+//    pi(0)=0.2184;
+//    pi(1)=0.2606;
+//    pi(2)=0.3265;
+//    pi(3)=0.1946;
+//    parameters[0]=2.0431;
+//    parameters[1]=0.0821;
+//    parameters[2]=0.0000;
+//    parameters[3]=0.0670;
+//    parameters[4]=0.0000;
+//    for (int i=5;i<8; i++)
+//    parameters[i]=pi(i-5);
+    for (int i=5;i<9;i++){
+        pi[i-5] = par[i];
+    }
+    for (int i=0;i<8;i++){
+        parameters[i] = par[i];
+    }
     
     //This codes tests the program if sampling a single nucleotide
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
@@ -911,7 +923,7 @@ double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1,
 }
 
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
-double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate)
+double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9])
 {
     double **GLDATA, t, parameters[8], twoDSFS[10][10];
     int *SDATA;
@@ -935,17 +947,23 @@ double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, 
 //    parameters[i]=1.0 /*+ (double)i*/;
 //    for (int i=5;i<8; i++)
 //    parameters[i]=pi(i-5);
-    pi(0)=0.2184;
-    pi(1)=0.2606;
-    pi(2)=0.3265;
-    pi(3)=0.1946;
-    parameters[0]=2.0431;
-    parameters[1]=0.0821;
-    parameters[2]=0.0000;
-    parameters[3]=0.0670;
-    parameters[4]=0.0000;
-    for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+//    pi(0)=0.2184;
+//    pi(1)=0.2606;
+//    pi(2)=0.3265;
+//    pi(3)=0.1946;
+//    parameters[0]=2.0431;
+//    parameters[1]=0.0821;
+//    parameters[2]=0.0000;
+//    parameters[3]=0.0670;
+//    parameters[4]=0.0000;
+//    for (int i=5;i<8; i++)
+//    parameters[i]=pi(i-5);
+    for (int i=5;i<9;i++){
+        pi[i-5] = par[i];
+    }
+    for (int i=0;i<8;i++){
+        parameters[i] = par[i];
+    }
     
     //simulate data
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);

@@ -10,6 +10,8 @@
 #include <ctime>
 #include <unistd.h>
 #include <chrono>
+#include<htslib/bgzf.h>
+#include<htslib/kstring.h>
 #include "shared.h"
 #include <pthread.h>
 #include "GLtest.h"
@@ -117,7 +119,7 @@ void SeedSetup(){
     //  }
     seed = time(NULL) ^getpid();
     fprintf(stderr,"seed: %ld\n",seed);
-    cout << "Random seed is "<< seed<<"\n";
+    //cout << "Random seed is "<< seed<<"\n";
     //seed it
     //first version rand family
     srand(seed);
@@ -146,9 +148,10 @@ double gammln(double xx)
     return -tmp+log(2.5066282746310005*ser/x);
 }
 
-
+// random problem
 // Poisson distribution
 double Poisson(double xm) {
+    //srand48(int(time));
     double gammln(double xx);
     static double sq,alxm,g,oldm=(-1.0);
     double em, t, y;
@@ -562,27 +565,159 @@ int findgenotypeindex(int i, int j)
         i=j;
         j=k;
     }
-    if (i==0){
-        if (j==0) return 0;
-        else if (j==1) return 1;
-        else if (j==2) return 2;
-        else if (j==3) return 3;
+    if (j<4){
+        if (i==0){
+            if (j==0) return 0;
+            else if (j==1) return 1;
+            else if (j==2) return 2;
+            else if (j==3) return 3;
+            else {printf("error in genotype index conversion table"); exit(-1);}
+        }
+        else if (i==1){
+            if (j==1) return 4;
+            else if (j==2) return 5;
+            else if (j==3) return 6;
+            else {printf("error in genotype index conversion table"); exit(-1);}
+        }
+        else if (i==2){
+            if (j==2) return 7;
+            else if (j==3) return 8;
+            else {printf("error in genotype index conversion table"); exit(-1);}
+        }
+        else if (i==3 && j==3) return 9;
         else {printf("error in genotype index conversion table"); exit(-1);}
+    }else if(j==4){
+        if (i == 0){
+            return 10;
+        } else if (i==1){
+            return 11;
+        } else if (i==2){
+            return 12;
+        } else if (i==3){
+            return 13;
+        } else if (i==4){
+            return 14;
+        } else {printf("error in genotype index conversion table"); exit(-1);}
+    }else if (j==5){
+        if (i<=5){
+            if (i == 0){
+                return 10;
+            } else if (i==1){
+                return 11;
+            } else if (i==2){
+                return 12;
+            } else if (i==3){
+                return 13;
+            } else if (i==4){
+                return 14;
+            } else if (i==5){
+                return 14;
+            }
+        } else {printf("error in genotype index conversion table"); exit(-1);}
+    }else if(j==6){
+        if (i<=6){
+            return 15;
+        } else {printf("error in genotype index conversion table"); exit(-1);}
     }
-    else if (i==1){
-        if (j==1) return 4;
-        else if (j==2) return 5;
-        else if (j==3) return 6;
-        else {printf("error in genotype index conversion table"); exit(-1);}
-    }
-    else if (i==2){
-        if (j==2) return 7;
-        else if (j==3) return 8;
-        else {printf("error in genotype index conversion table"); exit(-1);}
-    }
-    else if (i==3 && j==3) return 9;
-    else {printf("error in genotype index conversion table"); exit(-1);}
+    else{printf("error in genotype index conversion table");}
+    exit(-1);
 }
+//int findgenotypeindex(int i, int j)
+//{
+//    int k;
+//
+//    if (i>j){
+//        k=i;
+//        i=j;
+//        j=k;
+//    }
+//    if (j<4){
+//        if (i==0){
+//            if (j==0) return 0;
+//            else if (j==1) return 1;
+//            else if (j==2) return 2;
+//            else if (j==3) return 3;
+//            else {printf("error in genotype index conversion table"); exit(-1);}
+//        }
+//        else if (i==1){
+//            if (j==1) return 4;
+//            else if (j==2) return 5;
+//            else if (j==3) return 6;
+//            else {printf("error in genotype index conversion table"); exit(-1);}
+//        }
+//        else if (i==2){
+//            if (j==2) return 7;
+//            else if (j==3) return 8;
+//            else {printf("error in genotype index conversion table"); exit(-1);}
+//        }
+//        else if (i==3 && j==3) return 9;
+//        else {printf("error in genotype index conversion table"); exit(-1);}
+//    }else if(j==4){
+//        if (i == 0){
+//            return 10;
+//        } else if (i==1){
+//            return 11;
+//        } else if (i==2){
+//            return 12;
+//        } else if (i==3){
+//            return 13;
+//        } else if (i==4){
+//            return 14;
+//        } else {printf("error in genotype index conversion table"); exit(-1);}
+//    }else if (j==5){
+//        if (i<=5){
+//            if (i == 0){
+//                return 10;
+//            } else if (i==1){
+//                return 11;
+//            } else if (i==2){
+//                return 12;
+//            } else if (i==3){
+//                return 13;
+//            } else if (i==4){
+//                return 15;
+//            } else if (i==6){
+//                return 14;
+//            }
+//        } else {printf("error in genotype index conversion table"); exit(-1);}
+//    }else if(j==6){
+//        if (i<=6){
+//            return 16; // We will treat them as no information for now. But may come back to here later. _Lei
+//        } else {printf("error in genotype index conversion table"); exit(-1);}
+//    }
+//    else{printf("error in genotype index conversion table"); exit(-1);}
+//
+//}
+//int findgenotypeindex(int i, int j)
+//{
+//    int k;
+//
+//    if (i>j){
+//        k=i;
+//        i=j;
+//        j=k;
+//    }
+//    if (i==0){
+//        if (j==0) return 0;
+//        else if (j==1) return 1;
+//        else if (j==2) return 2;
+//        else if (j==3) return 3;
+//        else {printf("error in genotype index conversion table"); exit(-1);}
+//    }
+//    else if (i==1){
+//        if (j==1) return 4;
+//        else if (j==2) return 5;
+//        else if (j==3) return 6;
+//        else {printf("error in genotype index conversion table"); exit(-1);}
+//    }
+//    else if (i==2){
+//        if (j==2) return 7;
+//        else if (j==3) return 8;
+//        else {printf("error in genotype index conversion table"); exit(-1);}
+//    }
+//    else if (i==3 && j==3) return 9;
+//    else {printf("error in genotype index conversion table"); exit(-1);}
+//}
 
 void findgenotypes_from_index(int inde, int genotype[2])
 {
@@ -1306,7 +1441,7 @@ double estimateT_m(double twoDSFS[10][10], double *t, double parameters[], doubl
 }
 
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
-double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate)
+double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], const char* glfname, int isthreading, int dobinary, int r)
 {
     double **GLDATA, t, parameters[8], twoDSFS[10][10];
     int *SDATA;
@@ -1321,15 +1456,22 @@ double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2
     //SetSeed(666);
     SetSeed(rand()%30000+1);
     
+    
+    for (int i=5;i<9;i++){
+        pi[i-5] = par[i];
+    }
+    for (int i=0;i<8;i++){
+        parameters[i] = par[i];
+    }
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
-    pi(0)=0.25;
-    pi(1)=0.25;
-    pi(2)=0.25;
-    pi(3)=0.25;
-    for (int i=0; i<5; i++)
-    parameters[i]=1.0 /*+ (double)i*/;
-    for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+//    pi(0)=0.25;
+//    pi(1)=0.25;
+//    pi(2)=0.25;
+//    pi(3)=0.25;
+//    for (int i=0; i<5; i++)
+//    parameters[i]=1.0 /*+ (double)i*/;
+//    for (int i=5;i<8; i++)
+//    parameters[i]=pi(i-5);
     
 //    pi(0)=0.2184;
 //    pi(1)=0.2606;
@@ -1345,6 +1487,10 @@ double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2
 //
     //simulate data
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
+    if (glfname!=NULL){
+        string str = glfname+to_string(r);
+        gls_writer_double(str.c_str(), dobinary, numsites, GLDATA);
+    }
     
     //    for (int i = 0; i < numsites; i++){
     //        for (int j = 0; j < 20; j++){
@@ -1358,7 +1504,13 @@ double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2
     size_t eff_numsites = FilterSites(GLDATA, SDATA, numsites);
     
     //Estimate 2DSFS in 10x10 matrix
-    estimate2DSFS_EM(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
+    if (isthreading==1){
+        estimate2DSFS_EM_threading(twoDSFS, GLDATA, SDATA, numsites, eff_numsites, 25, 2*10);
+    }else{
+        estimate2DSFS_EM(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
+    }
+    
+    
     
     //Estimate T
     estimateT(twoDSFS, &t, parameters);
@@ -1617,7 +1769,7 @@ double likelihoodforTSEQ_v1(double t)
     return SEQlikelihood_v1(SEQDATA, SEQ_SDATA, t,  GLOBpar, globnumsites);
 }
 
-/*Simulation+Inference: Simulation and estimation of divergence time t based on a chosen read per site*/
+/*Simulation+Inference: Simulation and estimation of divergence time t based on a randomly chosen read per site*/
 double testsimSEQDATA_v1(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate)
 {
     double t, MLV, parameters[8];
@@ -2157,19 +2309,26 @@ double estimateNuc2DSFS_EM_threading(double SEQ2DSFS[4][4], vector<vector<double
  }
 
 /* Simulation + Inference: Simulation and estimation of divergence time t based on joint selected nucleotide distribution*/
-double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate)
+double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], int isthreading)
 {
     double t, MLV, parameters[8];
     
     
     //SetSeed(6);
     SetSeed(rand()%30000+1);
-    for (int i=0; i<4; i++)
-    pi(i)=0.25;
-    for (int i=0; i<5; i++)
-    parameters[i]=1.0;
-    for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+    
+    for (int i=5;i<9;i++){
+        pi[i-5] = par[i];
+    }
+    for (int i=0;i<8;i++){
+        parameters[i] = par[i];
+    }
+//    for (int i=0; i<4; i++)
+//    pi(i)=0.25;
+//    for (int i=0; i<5; i++)
+//    parameters[i]=1.0;
+//    for (int i=5;i<8; i++)
+//    parameters[i]=pi(i-5);
 
 //    pi(0)=0.2184;
 //    pi(1)=0.2606;
@@ -2197,7 +2356,14 @@ double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, doubl
     size_t effect_numsites = CheckSites(P0, P1, numsites);
     
     double SEQ2DSFS[4][4];
-    estimateNuc2DSFS_EM(SEQ2DSFS, P0, P1, numsites);
+    
+    
+    
+    if (isthreading==1){
+        estimateNuc2DSFS_EM_threading(SEQ2DSFS, P0, P1, numsites, 25);
+    }else{
+        estimateNuc2DSFS_EM(SEQ2DSFS, P0, P1, numsites);
+    }
     
     estimateTSEQ2DSFS(SEQ2DSFS, &t, parameters);
     cout<<"Estimated t = "<<t<<"\n";
@@ -2511,4 +2677,79 @@ double testjointEM(double RD, size_t numsites, double tdiv, double t1, double t2
     return t;
 }
 
+int gls_writer_double(const char* glfname, int dobinary, int nsites, double** gls){
+    //this block opens the filehandle called fp
+    
+    BGZF *fp = NULL;
+//    if(dobinary)
+        fp = bgzf_open(glfname,"wb");
+//    else
+//        fp = bgzf_open(glfname,"wb");
+
+    //for the textoutput we use kstring as internal text buffer
+    kstring_t *kstr = new kstring_t;
+    kstr->s = NULL;
+    kstr->l = kstr->m = 0;
+    for(int i=0;i<nsites;i++){
+        if(dobinary)
+            bgzf_write(fp,gls[i],sizeof(double)*20);
+        else{
+            for(int j=0;j<19;j++){
+                ksprintf(kstr,"%f\t",gls[i][j]);
+            }
+            ksprintf(kstr,"%f\n",gls[i][19]);
+            if(kstr->l>10000000){
+                bgzf_write(fp,kstr->s,kstr->l);
+                kstr->l = 0;
+            }
+
+        }
+    }
+    if(dobinary == 0){
+        bgzf_write(fp,kstr->s,kstr->l);
+        cout<<"Double txt glffile is constructed!\n";
+    }else{
+        cout<<"Double binary glffile is constructed!\n";
+    }
+    bgzf_close(fp);
+    return 0;
+}
+
+int gls_writer_uchar(const char* glfname, int dobinary, int nsites, uchar **gls){
+    //this block opens the filehandle called fp
+    BGZF *fp = NULL;
+//    if(dobinary)
+        fp = bgzf_open(glfname,"wb");
+//    else
+//        fp = bgzf_open(glfname,"wb");
+    
+    //for the textoutput we use kstring as internal text buffer
+    kstring_t *kstr = new kstring_t;
+    kstr->s = NULL;
+    kstr->l = kstr->m = 0;
+    
+    for(int i=0;i<nsites;i++){
+        if(dobinary)
+            bgzf_write(fp,gls[i],sizeof(uchar)*20);
+        else{
+            for(int j=0;j<19;j++){
+                ksprintf(kstr,"%d\t",(int)gls[i][j]);
+            }
+            ksprintf(kstr,"%d\n",(int)gls[i][19]);
+            if(kstr->l>10000000){
+                bgzf_write(fp,kstr->s,kstr->l);
+                kstr->l = 0;
+            }
+            
+        }
+    }
+    if(dobinary == 0){
+        bgzf_write(fp,kstr->s,kstr->l);
+        cout<<"Unsigned char txt glffile is constructed!\n";
+    }else{
+        cout<<"Unsigned char binary glffile is constructed!\n";
+    }
+    bgzf_close(fp);
+    return 0;
+}
 

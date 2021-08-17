@@ -1,71 +1,122 @@
+//
+//  io.cpp
+//
+//
+//  Created by Lei Zhao on 12/08/2021.
+//
+
+#include <stdio.h>
 #include <iostream>
-#include <vector>
-#include <htslib/vcf.h>
 #include <cmath>
-#include <limits>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Eigenvalues>
 #include <string>
-#include <pthread.h>
-#include <cassert>
-#include "special.h"
+#include <sstream>
+#include <fstream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <unistd.h>
+#include "io.h"
 
-/*we hardcode this to avoid having to do any arithmetic in the conversion and to make sure homozygous types are checked first*/
-/*this function is optimized to be fast and not to be pretty*/
-/*
- AA=00: 0
- AC=01: 1
- AG=02: 2
- AT=03: 3
- CC=11: 4
- CG=12: 5
- CT=13: 6
- GG=22: 7
- GT=23: 8
- TT=33: 9
- */
-int findgenotypeindex(int i, int j)
-{
-    int k;
+using namespace std;
 
-    if (i>j){
-        k=i;
-        i=j;
-        j=k;
+pars *pars_init(){
+    pars *p =(pars*) calloc(1,sizeof(pars));
+    p->outname = strdup("distAngsdlog");
+    // method can be geno, nuc, RandomSEQ, ConsensusSEQ, ConsensusGT for simulation
+    // method can only be geno for vcf
+    p->method = strdup("geno");
+    // model can be either JC or GTR
+    p->model = strdup("JC");
+    p->glfname = NULL;
+    p->vcfname = NULL;
+    p->dobinary = 1;
+    p->simrep = NULL;
+    p->is2Dsim = 0;
+    p->p_inv = 0;
+    for (int i=0;i<5;i++){
+        p->par[i] = 1.0;
     }
-    if (i==0){
-        if (j==0) return 0;
-        else if (j==1) return 1;
-        else if (j==2) return 2;
-        else if (j==3) return 3;
-        else {printf("error in genotype index conversion table"); exit(-1);}
+    for (int i=5;i<9;i++){
+        p->par[i] = 0.25;
     }
-    else if (i==1){
-        if (j==1) return 4;
-        else if (j==2) return 5;
-        else if (j==3) return 6;
-        else {printf("error in genotype index conversion table"); exit(-1);}
-    }
-    else if (i==2){
-        if (j==2) return 7;
-        else if (j==3) return 8;
-        else {printf("error in genotype index conversion table"); exit(-1);}
-    }
-    else if (i==3 && j==3) return 9;
-    else {printf("error in genotype index conversion table"); exit(-1);}
+    
+    p->errorrate = 0.002;
+    p->numsites = 1000000;
+    p->RD = 1;
+    p->tdiv = 1;
+    p->t1 = 0.4;
+    p->t2 = 0.25;
+    p->isthreading = 0;
+    p->isuchar = 0;
+    return p;
 }
 
-void findgenotypes_from_index(int inde, int genotype[2])
-{
-    switch(inde) {
-        case 0: genotype[0]=0; genotype[1]=0; break;
-        case 1: genotype[0]=0; genotype[1]=1; break;
-        case 2: genotype[0]=0; genotype[1]=2; break;
-        case 3: genotype[0]=0; genotype[1]=3; break;
-        case 4: genotype[0]=1; genotype[1]=1; break;
-        case 5: genotype[0]=1; genotype[1]=2; break;
-        case 6: genotype[0]=1; genotype[1]=3; break;
-        case 7: genotype[0]=2; genotype[1]=2; break;
-        case 8: genotype[0]=2; genotype[1]=3; break;
-        case 9: genotype[0]=3; genotype[1]=3; break;
-        default: {printf("error 2 in genotype index conversion table (case=%i)",inde); exit(-1);}
+pars *get_pars(int argc,char **argv){
+    pars *p = pars_init();
+    if(argc % 2){
+        fprintf(stderr,"\t-> Must supply arguments in the form -pattern value\n");
+        free(p);
+        return NULL;
     }
+    int k = 0;
+    double sumpi = 0;
+    while(*argv){
+        char *key=*argv;
+        char *val=*(++argv);
+        if(!strcasecmp("-o",key)) p->outname=strdup(val);
+        else if(!strcasecmp("-method",key)) p->method=strdup(val);
+        else if(!strcasecmp("-model",key)) p->model=strdup(val);
+        else if(!strcasecmp("-glf",key)) p->glfname=strdup(val);
+        else if(!strcasecmp("-vcf",key)) p->vcfname=strdup(val);
+        else if(!strcasecmp("-simrep",key)) p->simrep=atoi(val);
+        else if(!strcasecmp("-is2Dsim",key)) p->is2Dsim=atoi(val);
+        else if(!strcasecmp("-numsites",key)) p->numsites=atoi(val);
+        else if(!strcasecmp("-RD",key)) p->RD=atof(val);
+        else if(!strcasecmp("-tdiv",key)) p->tdiv=atof(val);
+        else if(!strcasecmp("-t1",key)) p->t1=atof(val);
+        else if(!strcasecmp("-t2",key)) p->t2=atof(val);
+        else if(!strcasecmp("-p_inv",key)) p->p_inv=atof(val);
+        else if(!strcasecmp("-isthreading",key)) p->isthreading=atoi(val);
+        else if(!strcasecmp("-isuchar",key)) p->isuchar=atoi(val);
+        else if(!strcasecmp("-dobinary",key)) p->dobinary=atoi(val);
+        else if(!strcasecmp("-par",key)){
+            stringstream ss(strdup(val));
+            while (ss.good() && k<=8){
+                string substr;
+                getline(ss, substr, ',');
+                p->par[k] = stod(substr);
+                if (k >= 5){
+                    sumpi = sumpi+p->par[k];
+                }
+                k = k+1;
+            }
+        }
+        else{
+            fprintf(stderr,"\t Unknown parameter key:%s val:%s\n",key,val);
+            free(p);
+            return NULL;
+        }
+        
+        ++argv;
+    }
+    if ((p->simrep != NULL && p->vcfname != NULL) || (p->simrep == NULL && p->vcfname == NULL)){
+        fprintf(stderr,"\t Please specify whether you want to conduct simulation or to analyse vcf file\n");
+        free(p);
+        return NULL;
+    }else if (!strcasecmp(p->model,"GTR") && k!=9){
+        fprintf(stderr,"\t In GTR model, 9 parameters should be supplied to the substitution rate matrix \n");
+        free(p);
+        return NULL;
+    }else if (p->vcfname !=NULL && strcasecmp(p->method,"geno")){
+        fprintf(stderr,"\t Currenly only distAngsd-geno is implemented for real data analyses!\n");
+        free(p);
+        return NULL;
+    }else if(!strcasecmp(p->model,"GTR")){
+        for (int i = 5; i < 9; i++){
+            p->par[i] = p->par[i]/sumpi;
+        }
+    }
+    return p;
 }
