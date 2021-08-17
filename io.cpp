@@ -32,8 +32,8 @@ pars *pars_init(){
     p->glfname = NULL;
     p->vcfname = NULL;
     p->dobinary = 1;
-    p->simrep = NULL;
-    p->is2Dsim = 0;
+    p->simrep = -1;
+    p->is2Dinfer = 0;
     p->p_inv = 0;
     for (int i=0;i<5;i++){
         p->par[i] = 1.0;
@@ -71,7 +71,7 @@ pars *get_pars(int argc,char **argv){
         else if(!strcasecmp("-glf",key)) p->glfname=strdup(val);
         else if(!strcasecmp("-vcf",key)) p->vcfname=strdup(val);
         else if(!strcasecmp("-simrep",key)) p->simrep=atoi(val);
-        else if(!strcasecmp("-is2Dsim",key)) p->is2Dsim=atoi(val);
+        else if(!strcasecmp("-is2Dinfer",key)) p->is2Dinfer=atoi(val);
         else if(!strcasecmp("-numsites",key)) p->numsites=atoi(val);
         else if(!strcasecmp("-RD",key)) p->RD=atof(val);
         else if(!strcasecmp("-tdiv",key)) p->tdiv=atof(val);
@@ -101,16 +101,24 @@ pars *get_pars(int argc,char **argv){
         
         ++argv;
     }
-    if ((p->simrep != NULL && p->vcfname != NULL) || (p->simrep == NULL && p->vcfname == NULL)){
-        fprintf(stderr,"\t Please specify whether you want to conduct simulation or to analyse vcf file\n");
+    if ((p->simrep > 0 && p->vcfname != NULL) || (p->simrep <= 0 && p->vcfname == NULL)){
+        fprintf(stderr,"\t Please specify whether you want to conduct simulation or to analyse vcf file.\n");
+        free(p);
+        return NULL;
+    }else if((p->simrep > 0) && (p->tdiv - p->t1 - p->t2 < 0)){
+        fprintf(stderr,"\t tdiv should be larger or equal to t1+t2 in simulations.\n");
         free(p);
         return NULL;
     }else if (!strcasecmp(p->model,"GTR") && k!=9){
-        fprintf(stderr,"\t In GTR model, 9 parameters should be supplied to the substitution rate matrix \n");
+        fprintf(stderr,"\t In GTR model, 9 parameters should be supplied to the substitution rate matrix.\n");
         free(p);
         return NULL;
     }else if (p->vcfname !=NULL && strcasecmp(p->method,"geno")){
         fprintf(stderr,"\t Currenly only distAngsd-geno is implemented for real data analyses!\n");
+        free(p);
+        return NULL;
+    }else if ((p->is2Dinfer==1) && ((strcasecmp(p->model,"GTR")) || (!strcasecmp(p->method,"ConsensusGT")))){
+        fprintf(stderr,"\t Symmetric models, such as JC, are proved to have multi-solutions in 2D inferences, please try GTR.\n \t ConsensusGT is not suitable for 2D inferences, please try other methods.\n");
         free(p);
         return NULL;
     }else if(!strcasecmp(p->model,"GTR")){

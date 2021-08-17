@@ -31,10 +31,11 @@ typedef struct{
     // Specify the GTR model
     double par[9];
     int dobinary;
+    int is2Dinfer;
+    int isthreading;
     
     // For simulation
     int simrep;
-    int is2Dsim;
     double errorrate;
     int numsites;
     double RD;
@@ -45,7 +46,6 @@ typedef struct{
     
     // For real data
     char* vcfname;
-    int isthreading;
     int isuchar;
 }pars;
 

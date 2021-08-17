@@ -93,5 +93,6 @@ void EMStepfor2DSFS_threading_double(pthread_t* mythd, int nthreads,vector<EMjob
 double estimate2DSFS_EM_threading_double(double twoDSFS[10][10], double **GLDATA, size_t numsites, int nthreads, int rowL);
 
 //vcf inference
-double vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek, double par[9], int isthreading, int isuchar, int dobinary);
+//double vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek, double par[9], int isthreading, int isuchar, int dobinary);
+void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field, char *seek, double par[9], int isthreading, int isuchar,int dobinary, int is2Dinfer, double &t, double &p);
 #endif /* vcftest_h */

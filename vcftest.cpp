@@ -8,6 +8,7 @@
 #include <cassert>
 #include "shared.h"
 #include "GLtest.h"
+#include "GL2Dtest.h"
 #include "vcftest.h"
 //#include "special.h"
 #define diskio_threads 24
@@ -1591,12 +1592,14 @@ void plmatrixbuilder(){
 
 
 
-double vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field, char *seek, double par[9], int isthreading, int isuchar,int dobinary){
+void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field, char *seek, double par[9], int isthreading, int isuchar,int dobinary, int is2Dinfer, double &t, double &p){
     size_t nsites = 0;
     int nind;
     vector<double> freqs;
-    double t, parameters[8], twoDSFS[10][10];
+    double parameters[8], twoDSFS[10][10];
     
+    t = 0.0;
+    p = -1.0;
     for (int i=5;i<9;i++){
         pi[i-5] = par[i];
     }
@@ -1642,8 +1645,17 @@ double vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, s
         delete [] GLDATA2;
     }
     //Estimate T
-    estimateT(twoDSFS, &t, parameters);
-    return t;
+    
+    if (is2Dinfer == 1){
+        double x[2];
+        estimateTWithInvSite(twoDSFS, x, parameters);
+        cout << "The 2D inferred divergence time is " << x[0] << ",\n";
+        cout << "The 2D inferred fraction of invariable sites is " << x[1] << ".\n";
+        t = x[0];
+        p = x[1];
+    }else{
+        estimateT(twoDSFS, &t, parameters);
+    }
 }
 
 //#ifdef __WITH_MAIN__
