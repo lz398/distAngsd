@@ -1,8 +1,13 @@
 distAngsd is a software to simulate and infer phylogenetic relationships between two individuals.
+
 make distAngsd
+
 ./distAngsd -o -method -model -glf -vcf -simrep -is2Dinfer -p_inv -isthreading -dobinary -numsites -isuchar -RD -errorrate -tdiv -t1 -t2 -par
+
 -o specifies the recorded logs which contain command detail and inferred results for either simulation/real vcf files
+
 -method can be either JC or GTR
+
 -glf specifies the directory of output genotype likelihoods files
 -vcf specifies the directory of input vcf files
 -simrep specifies the number of simulation replicates
