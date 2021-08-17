@@ -39,7 +39,7 @@ int newt, newmat; /*these are control variables used to determine if the transit
 
 int main(int argc,char**argv){
     if (argc == 1){
-        fprintf(stderr,"\t-> ./distAngsd -o -method -model -glf -vcf -simrep -is2Dinfer -p_inv -isthreading -dobinary -numsites -RD -errorrate -tdiv -t1 -t2 -par\n");
+        fprintf(stderr,"\t-> ./distAngsd -o -method -model -glf -vcf -simrep -is2Dinfer -p_inv -isthreading -dobinary -isuchar -numsites -RD -errorrate -tdiv -t1 -t2 -par\n");
         fprintf(stderr,"\t-> Default method is geno, default model is JC.\n");
         fprintf(stderr,"\t-> Default number of sites for simulation (numsites) is 1000000, default mean read depth (RD) is 1.0, default calling error rate (errorrate) is 0.002,\n");
         fprintf(stderr,"\t-> default divergent time (tdiv) is 1.0, default t1 is 0.4, and default t2 is 0.25.\n");
