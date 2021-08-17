@@ -3,7 +3,6 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{graphicx}
 \usepackage{enumerate}
 \usepackage{blindtext}
 \usepackage{mathtools}
@@ -825,7 +824,7 @@ FIG. \ref{fig:BiasJC} and FIG. \ref{fig:BiasGTR} show the evidences of inference
 In this section, we will introduce three pre-existing methods for comparison, i.e., RandomSEQ, ConsensusSEQ and ConsensusGT. RandomSEQ refers to the method that one read is randomly chosen per site to infer the genetic distance between individuals. ConsensusSEQ denotes the method that the consensus read (based either on physical read depth or effective base depth \citet{Wang:2013}) per site is used to infer the genetic distance between individuals. And ConsensusGT represents the method that the consensus genotype (according to the posterior distribution given by genotype likelihoods) per site is used to infer the genetic distance between individuals, when the consensus genotype is a heterozygote, ambiguous inference, which will be described below, will be applied. 
 
 We believe for each site of the sample, four pieces of information will contribute to inferring the phylogeny, i.e., the read depth, the base calling errors of each read, the nucleotide frequencies at the site and the ploidy level of the focal organism. All the pre-existing methods together with the proposed distAngsd-geno and distAngsd-nuc methods will take advantage of one or more pieces of information. As shown in Table \ref{tab:Information}, the pre-existing methods make only partially/no use of the base calling errors of each site and other information, while distAngsd-geno uses all the information, and distAngsd-nuc uses all the information except ploidy level. Hence in principle, they should outperform these pre-existing methods.
-\begin{table}[h]
+\begin{table}[ht]
     \centering
     \begin{tabular}{|c|cccc|}
      \hline
@@ -837,9 +836,10 @@ We believe for each site of the sample, four pieces of information will contribu
       RandomSEQ & \tickNo & \tickHalfYes & \tickYes & \tickNo\\
       ConsensusSEQ & \tickNo & \tickHalfYes & \tickYes & \tickNo\\
       ConsensusGT & \tickHalfYes & \tickHalfYes & \tickHalfYes & \tickYes\\
+      NGSDist & \tickYes & \tickYes & \tickYes & \tickYes\\
       \hline
       \end{tabular}
-    \caption{This table shows how different methods make use of the $4$ sources of information to conduct inference. check signs (\tickYes) mean the information is fully used, the cross signs (\tickNo) represent the information is not used, while the semi-check signs (\tickHalfYes) means the information is partially used. \\Since genotype likelihoods are computed with read depth, base calling errors, nucleotide frequencies per site and the prior knowledge of ploidy, and they are fully used by distAngsd-geno, and so does the method distAngsd-geno. And genotype likelihoods are also partially used by the method ConsensusGT to find the consensus genotype per site (only the maximum genotype likehood per site matters), so we mark the columns representing read depth, base calling errors and nucleotide frequencies per sites of ConsensusGT row as semicheck signs. But as ConsensusGT relies on pre-calculated genotype likelihoods, it makes fully use of the information of ploidy level. distAngsd-nuc takes advantage of all the reads and their read quality scores, but it does not use the knowledge of ploidy level, so only the ploidy level column of its row gets a cross. If RandomSEQ and ConsensusSEQ use the physical read depths, they only use the information of nucleotide frequencies per site; but if they use the EBD instead, the information of base calling errors are partially taken into account too.}
+    \caption{This table shows how different methods make use of the $4$ sources of information to conduct inference. check signs (\tickYes) mean the information is fully used, the cross signs (\tickNo) represent the information is not used, while the semi-check signs (\tickHalfYes) means the information is partially used. \\Since genotype likelihoods are computed by read depth, base calling errors, nucleotide frequencies per site and the prior knowledge of ploidy, and they are fully used by distAngsd-geno. And genotype likelihoods are also partially used by the method ConsensusGT to find the consensus genotype per site, so we mark the columns representing read depth, base calling errors and nucleotide frequencies per sites of ConsensusGT row as semicheck signs. But since ConsensusGT relies on pre-calculated genotype likelihoods, it makes fully use of the information of ploidy level. distAngsd-nuc takes advantage of all the reads and their read quality scores, but it does not use any prior knowledge of ploidy level. If RandomSEQ and ConsensusSEQ use the physical read depths, they only use the information of nucleotide frequencies per site; but if they use the EBD instead, the information of base calling errors are partially taken into account.}
     \label{tab:Information}
 \end{table}
 \subsection{Ambiguity Inference}

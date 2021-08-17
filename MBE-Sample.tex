@@ -13,6 +13,11 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{float}
+\usepackage{soul}
+% \usepackage{nameref}
+% \usepackage{varioref}
+% \usepackage{hyperref}
+% \usepackage{cleveref}
 \jshort{mst}
 
 \volname{}
@@ -126,12 +131,13 @@ The reconstruction of phylogenies of ancient organisms/species also confronts th
 Two novel divergence time concatenated inference methods, distAngsd-geno and distAngsd-nuc, are present in this work. Based on the GTR model of nucleotide substitution, both of the methods are pairwise ML estimators. Making use of the genotype likelihoods, distAngsd-geno is designed for analyzing the known diploid samples (and can be extended to any known multiploid samples) of bad quality (especially, ancient samples with low coverage and high calling error). And distAngsd-nuc requires no information about the ploidy level. Taking uncertainties of all reads into account, the method of distAngsd-nuc can be used to estimate the divergence time of samples with unknown ploidy or the samples with different ploidy. The basic idea of both methods is similar: 1, Use the EM algorithm to estimate the joint distribution of genotypes (distAngsd-geno) or the joint distribution of sampled nucleotides for both samples (distAngsd-nuc). 2, Such joint distributions then serve as pseudo-observations when calculate the likelihood functions of the GTR model. 3, Maximize the likelihood to infer the divergence time between samples. 
 
 Simulations are conducted for comparisons among the presented methods and some of the pre-existing inference methods. The inferred results of the recommended methods have fewer biases and smaller variances especially when the read depth is lower, or the variable genome length is shorter. Different methods are also applied to the published data. The inferred phylogenetic trees based on the recommended methods match better the prior species knowledge than those based on pre-existing methods according to a topological measurement.
-\vspace{2mm}
-\section{Models and Methods}
-Both distAngsd-geno and distAngsd-nuc share similar characteristics: Firstly an estimate of the joint distribution of either genotypes (distAngsd-geno) or sampled nucleotides (distAngsd-nuc) is obtained based on either genotype likelihood data or the observed reads and their quality scores. Such joint distributions can then be interpretated as \emp{pseudo-observations} and serve as a basis for inferring the actual distance measure using the classic  maximum likelihood approaches from molecular evolutionary models, e.g., the JC69 model or the more general GTR model.
-\vspace{2mm}
-\subsection{EM Estimation of joint distributions}
 
+\vspace{2mm}
+\section{Models and Methods}\label{sec:ModelsandMethods}
+Both distAngsd-geno and distAngsd-nuc share similar characteristics: Firstly an estimate of the joint distribution of either genotypes (distAngsd-geno) or sampled nucleotides (distAngsd-nuc) is obtained based on either genotype likelihood data or the observed reads and their quality scores. Such joint distributions can then be interpretated as \emp{pseudo-observations} and serve as a basis for inferring the actual distance measure using the classic  maximum likelihood approaches from molecular evolutionary models, e.g., the JC69 model or the more general GTR model.
+
+\vspace{2mm}
+\subsection{EM Estimation of joint distributions}\label{subsec:EM}
 As a relatively low read depth and high calling error rate are assumed, it is not sufficient to use the short reads information for a single nucleotide base to obtain a meaningful nucleotide/genotype inference. Statistic inference has to conducted across all the informative sites (When the site has read depths $\geq 1$ for both samples, we count it as an informative site). In order to make inference of genetic distance between samples, the joint distribution of genotypes (distAngsd-geno) or the joint distribution of sampled nucleotides for both samples (distAngsd-nuc) per site will be estimated given the observed short reads data. The inferred joint distributions will play a role as pseudo-observations when the JC69 or GTR model likelihood function is evaluated. The joint distributions will be inferred via EM algorithm \citep{Dempster_Laird_Rubin:1977}:
 
 In distAngsd-geno, the joint genotype distribution can be presented in a 10 by 10 matrix $\bf M$. $10$ is the total number of all possible genotypes of a diploid individual at per site, i.e., {AA, AC, AG, AT, CC, CG, CT, GG, GT, TT}. Both row and column of $\bf M$ are indexed by these genotypes. And every element of $\bf M$, ${\bf M}(g_i,g_j)$, represents the proportion of the informative sites where the true genotypes of the focal pair of samples are given by its row and column, i.e., $g_i$ and $g_j$ correspondly.
@@ -190,7 +196,7 @@ initialization: ${\bf N}_{0}(n_i,n_j)\gets\frac{1}{16}$, $t\gets 0$\;
 distAngsd-geno infers $\bf M$ via ALG. \ref{algor:Geno2SFS}, while distAngsd-nuc applies ALG. \ref{algor:Nuc2SFS} to estimating $\bf N$. One should note that both of the EM algorithms described here are independent with the evolutionary models' adoption (e.g. JC69 model or GTR model) and can be pre-calculated. The input of ALG. \ref{algor:Geno2SFS} is the genotype likelihood data of all informative sites which can be calculated by VCFtools \cite{Danecek:2011} or GATK \cite{Poplin:2017} and present in the .vcf files. While the input in ALG. \ref{algor:Nuc2SFS} is the likelihood of sampled nucletides per read per site. This type of data can be achieved from .bam or .sam files which are the output of the DNA alignment software (e.g., BWA, \citet{Li:2013}).
 
 \vspace{2mm}
-\subsection{Maximum Likelihood Inference}
+\subsection{Maximum Likelihood Inference}\label{subsec:ML}
 The EM inferred joint distribution matrices $\hat{\bf M}$ and $\hat{\bf N}$ will serve as pseudo-observations in this section when the log-likelihood function of genetic distance $d$ based on the adopted molecular evolutionary model is formulated. Maximum likelihood will be conducted to estimate the genetic distance $d$ and other related parameters.
 \vspace{1mm}
 \subsubsection{Log-likelihood of distAngsd-geno inference}
@@ -211,8 +217,9 @@ where $\mathrm{P}_{n_1,n_2}(d)$ is the transition probability from nucleotide $n
 The forms of $\mathrm{P}_{\cdot,\cdot}(\cdot)$, $\pi_{\cdot}$ and $d$ in both Equations (\ref{eqn:Geno2dloglike}) and (\ref{eqn:Nuc2dloglike}) will be determined by the adopted substitution model (e.g., JC69 or GTR model). The pairwise genetic distance $d$ can be viewed as a compound function of divergence time $t=t_0+t_1+t_2$ (as shown in FIG. \ref{fig:basictree4inference}) between two samples and the substitution rate. If the substitution rate is assumed to be unchanged, and after some rescaling of substitution rate matrix (see Supplementary Information for details), we will have the mean number of substitutions occurring per base per scaled time unit is $1$, so $d$ and $t$ will have the identical value and the inferred $d$ can be compared with the $t$ in simulation codes (See ALG. \ref{algor:Simulation}).
 
 In principle, given the adopted evolutionary model and the observations of a pair of samples, one can also infer more parameters in addition to the genetic distance $d$, e.g., the fraction of invariable sites $p_{inv}$. In the Supplementory Information (Section S3.5), we show that for the asymmetric evolutionary models (e.g., GTR+I), the parameters $d$ and $p_{inv}$ can be jointly estimated with acceptable variances/biases by using distAngsd-geno and distAngsd-nuc even if the genome length is as short as $100kbp$, while the other compared methods will give highly biased estimations. Though in practice, $p_{inv}$ and other phylogeny paramters are recommened to infer with more samples and in a tree structure, the accurate estimation of joint inference of $d$ and $p_{inv}$ reflects the stability of both of our methods.
+
 \vspace{2mm}
-\subsection{Simulation and Comparison}
+\subsection{Simulation and Comparison}\label{subsec:SimandComp}
 \vspace{1mm}
 \subsubsection{Simulation}
 % \begin{forest}
@@ -326,9 +333,14 @@ $\log\left[\mathrm{P}_{g_1=ij,g_2=kl}(d)\right]$ has the form of $\log\left[\sum
 
 When the genotypes $ij$ and $kl$ are both homogeneous, the form $\log\left[\mathrm{P}_{g_1=ij,g_2=kl}(d)\right]$ in Equation \ref{eqn:AmbiguousInference} is equivalent to the form $\sum_{i,j=1}^2\log\left[\pi_{g_{1,i}}\mathrm{P}_{g_{1,i},g_{2,j}}(d)\right]$ in Equation \ref{eqn:Geno2dloglike}. While if either the genotype $ij$ or $kl$ is heterozygous, the likelihood in Equation \ref{eqn:AmbiguousInference} will underestimate the genetic distance between samples: As in FIG. \ref{fig:basictree4inference}, the ambiguous inference likelihood tries to approximate the distance between the internal nodes A and B rather than the distance between actual genotypes of two samples, $ij$ and $kl$. If substitution rate is assumed to be so small that the times from A or B to tips are not sufficient to trigger less than $\frac{1}{2}$ substitution on average, one can view the the distribution of nucleotides at A as half the chance $i$, and half the chance $j$, and similarly the nucleotide distribution at node B can be viewed as half the chance $k$ and half the chance $l$. The genetic distance $d$ will be underestimated since it ignores the distance generated by $t_1$ and $t_2$ in FIG. \ref{fig:basictree4inference}. However, when the substitution rate or the the times from A or B to tips are large, the distributions of nucleotides at A and B can not be approximated as described above, but in general the genetic distance $d$ will be underestimated if the fraction of heterozygous sites can not be ignored and ambiguous inference is applied.
 
-As we discussed in the Table S3 of the Supplementary Information, four pieces of information will contribute to inferring the phylogeny, i.e., the read depth, the base calling errors of each read, the nucleotide frequencies at the site and the ploidy level of the focal organism. The three pre-existing methods make only partially/no use of the base calling errors of each site and other information, while distAngsd-geno uses all the information, and distAngsd-nuc uses all the information except ploidy level. Hence in principle, they should outperform these pre-existing methods.
+{\color{red} 
 
-{\color{red}the NGSDist method. \cite{Vieira_Lassalle_Korneliussen_Fumagalli:2015}}
+We also compare the novel methods with NGSDist \cite{Vieira_Lassalle_Korneliussen_Fumagalli:2015}, which is the only pre-existing method that make use of the genotype likelihoods to infer the genetic distances. We apply the NGSDist inference in different parameter settings, based on simulation scheme ALG. \ref{algor:Simulation}. The simulated $10$ genotype likelihoods per individual per site will be converted into major-minor-allele $3$ genotype likelihoods via Angsd \cite{Korneliussen:2014}, and the $3$ genotype likelihoods will serve as the input of NGSDist to calculate the pairwise distances.
+
+} 
+
+As we discussed in the Table S3 of the Supplementary Information, four pieces of information will contribute to inferring the phylogeny, i.e., the read depth, the base calling errors of each read, the nucleotide frequencies at the site and the ploidy level of the focal organism. The first three pre-existing methods (i.e., RandomSEQ, ConsensusSEQ and ConsensusGT) make only partially/no use of the base calling errors of each site and other information, while distAngsd-geno and NGSDist use all the information, and distAngsd-nuc uses all the information except ploidy level. {\color{red}However, the genetic distance defined in NGSDist (i.e.,the first two equations in \citealp{Vieira_Lassalle_Korneliussen_Fumagalli:2015}) is molecular evolutionary model free and based on the infinite site model, so 1) No recurrent mutation is allowed, which will lead to underestimations of the genetic distances defined by molecular evolutionary models; 2) Only symmetric substitution model can be inferred, which will limit the usage of NGSDist} Hence in principle, the proposed distAngsd methods should outperform all the $4$ pre-existing methods discussed above. And the results shall be presented in the Results Section.
+
 % \begin{itemize}
 % \item Infer the divergence time based on a randomly chosen read per site per individual sample. As shown in the Result section, based on maximum likelihood, if the correct model is chosen, the mean inferred divergence time should be unbiased. However, since incomplete read data is used, a larger estimator variance will be obtained compared with distAngsd-geno or distAngsd-nuc, when a sufficient poisson read depth ($\sim 0.75\times$) or a relative calling error is presented.
 % \item Make inference of the divergence time via treating heterozygous sites as IUPAC ambiguity codes. By doing this, the inferences meant to take advantage of ploidy information of the data. The putative heterozygous sites will be replaced by their corresponding IUPAC ambiguity code. For instance, the site C/T will be substituted by the letter Y, which represents the pyrimidine. We combine this idea with the genotype likelihood. The corresponding likelihood function can be expressed as follows (Details of derivation, See Supplementary Material):
@@ -344,8 +356,9 @@ As we discussed in the Table S3 of the Supplementary Information, four pieces of
 % \end{itemize}
 {\color{red}
 \vspace{2mm}
-\subsection{Experimental data analyses}
-The proposed distAngsd-geno method is applied to infer the phylogeny of the published oak dataset \cite{Fitz-Gibbon_Hipp_Pham_Manos_Sork:2017}. There are RADseq sequences from $83$ oak samples representing $16$ taxa around the US. The data is aligned to a collapsed version of reference genome (v0.5, \citet{Sork:2016}; available from \url{https://valleyoak.ucla.edu/genomicre sources/}) via BWA-MEM v.0.7.17 \cite{Li:2013}. VCFtools v.0.1.17 \cite{Danecek:2011} is then applied to calculate the genotype likelihoods and get the .vcf files. The bed file of sites passing the filtering criteria in \cite{Fitz-Gibbon_Hipp_Pham_Manos_Sork:2017} of each sample is kindly shared by Dr. Fitz-Gibbon and Prof. Sork to gurantee that we are on the right track to conduct phylogeny inference. Their filtering criteria and adjustments in are as follows,
+
+\iffalse
+The data is aligned to a collapsed version of reference genome (v0.5, \citet{Sork:2016}; available from \url{https://valleyoak.ucla.edu/genomicre sources/}) via BWA-MEM v.0.7.17 \cite{Li:2013}. VCFtools v.0.1.17 \cite{Danecek:2011} is then applied to calculate the genotype likelihoods and get the .vcf files. The bed file of sites passing the filtering criteria in \cite{Fitz-Gibbon_Hipp_Pham_Manos_Sork:2017} of each sample is kindly shared by Dr. Fitz-Gibbon and Prof. Sork to gurantee that we are on the right track to conduct phylogeny inference. Their filtering criteria and adjustments in are as follows,
 \begin{enumerate}[i]
     \item Identification of targeted genome regions and variant discovery were done with GATK v3.6-0-g89b7209 \cite{McKenna:2010}, as follows. We ran CallableLoci on each sample with default parameters, except that minimum read depth is set to 5 and maximum read depth is set to 100 (minDepth 5 and maxDepth 100). An overall set of callable regions, hereafter referred to as reference-mapped loci, included all regions of exactly 86 bp determined to be callable in at least four samples. HaplotypeCaller variant discovery is run using emitRefConfidence GVCF mode separately for each sample. The whole cohort is concurrently genotyped over the reference-mapped loci regions using GenotypeGVCFs with a minimum confidence of 30.
     \item Based on inspection of variant calls and read alignments \cite{Robinson:2011}, we chose to only filter the variants by QD as well as requiring them to be biallelic. VariantFiltration is used to apply a QD $< 2.0$ filter tag. 
@@ -356,18 +369,27 @@ The proposed distAngsd-geno method is applied to infer the phylogeny of the publ
     \item Homozygous indel variants are included using dashes to maintain the overall alignment. However, there is no IUPAC ambiguity code for heterozygous indels and so they are instead encoded as Ns.
 \end{enumerate}
 Apart from the filtering and adjustments described above, The bed files of sites they sent to us also go through an extra round of filtering to remove the loci with more than five heterozygous sites, but as they pointed out later that "the extra filters had little effect on phylogeny topology or congruence although the relative positions of the Q. lobata and Q. engelmannii clades are altered, but with zero bootstrap support".
-
 The filters described above had largely suppressed the fraction of heterozygous sites in the downstream phylogeny analyses, and the remaining heterozygous sites will be treated as IUPAC ambiguity codes due to the limitations of the pre-existing methods. In order to recover more heterozygous sites (non-biallelic sites) and uncertainties (low quality sites) which distAngsd-geno is believed to handle, we only used the information of positions of loci in each bed file. And for the marked Ns within the loci regions which has mapped reads information, we restored them. For every pair of oak samples, the parallel-computatinal distAngsd-geno inference with simplest JC69 model is conducted and only the sites with non-zero read depths for both samples will be used to estimate the pairwise genetic distances.  Once the $83\times 83$ pairwise matrix is determined, program PhyD \cite{Criscuolo:2008} will use the BioNJ \cite{Gascuel:1997} algorithm to build neighbour joining trees, and trees are plotted with FigTree v1.4.4. (\url{http://tree. bio.ed.ac.uk/software/figtree/}). 
+\fi
+
+\subsection{Experimental data analyses}\label{subsec:ExperimentalData}
+The proposed distAngsd-geno method is applied to infer the phylogeny of the published oak dataset \cite{Fitz-Gibbon_Hipp_Pham_Manos_Sork:2017}. This RADseq dataset is comprised of $83$ oak samples representing $16$ taxa around the US. We obtained access to the raw fastq sequences and followed the reference mapped approach described in details in \citealp{Fitz-Gibbon_Hipp_Pham_Manos_Sork:2017}. {\color{blue} The sites for downstream analyses are based on the callable loci bedfiles kindly shared by Prof. Victoria L. Sork and Dr. Sorel Fitz-Gibbon through personal correspondences. For each site, we use the raw genotype likelihood for our novel approach.} 
+\iffalse
+\st{Our dataprocessing deviated from their pipeline by allowing heterozygote sites which was then either encoded as IUPAC ambiguity codes when comparing with existing distance methods or simply using the raw genotype likelihood for our novel approach.} 
+\fi
+For every pair of oak samples, the parallel-computational distAngsd-geno inference with simplest JC69 model is conducted and only the sites with non-zero read depths for both samples will be used to estimate the pairwise genetic distances.  Once the $83\times 83$ pairwise matrix is determined, program PhyD \cite{Criscuolo:2008} will use the BioNJ \cite{Gascuel:1997} algorithm to build neighbour joining trees, and trees are plotted with FigTree v1.4.4. (\url{http://tree. bio.ed.ac.uk/software/figtree/}). 
 
 As distAngsd-geno is currently implemented for pairwise genetic distance inference and the simplest JC69 model is used for the inference of the real data, it is not very suitable to directly compare the distAngsd-geno's results with the results in the original paper \cite{Fitz-Gibbon_Hipp_Pham_Manos_Sork:2017} where they conducted such inferences based on ML tree with more complicated model, we thus compared our inference results with pre-existing methods based sorely on JC69 model, i.e., ConsensusSEQ and ConsensusGT. Bcftools consensus is applied to getting the consensus nucleotide sequence and the consensus genotype sequence of each sample. And the putative heterozygous sites in ConsensusGT are expressed as IUPAC codes. Then the pairwise distances between samples are calculated as the genetic distance 
 between their consensus sequences based on the JC69 model. The neighbour joining trees are then contructed in the same way as the distAngsd-geno tree described in the previous paragraph via PhyD and FigTree v1.4.4.
 
 Downsampling is conducted to each of the $83$ samples via samtools view -s command to further test the distAngsd-geno's inference capability when lower depth is observed. The original $83$ samples have an average read depth $20.32$ and lowest depth $10.34$. Each sample is downsampled to read depth $10$, $5$, $1$, $0.75$, $0.5$, and $0.25$ according to its original read depth. And similarly as above, phylogenetic trees will be constructed based on each downsampled set of data.}
+
 \vspace{2mm}
-\section{Results}
-In this section, both simulated and experimental results are presented to validate the proposed methods. 
+\section{Results}\label{sec:Results}
+In this section, both simulated and experimental results are presented to validate the proposed methods.
+
 \vspace{2mm}
-\subsection{Inferences based on simulations}
+\subsection{Inferences based on simulations}\label{subsec:SimInfer}
 The simulations are conducted as described in the previous section. We fix the $t_1 = 0.4$, and $t_2 = 0.25$ in FIG. \ref{fig:basictree4inference}, but vary the ancestral divergence time $t_0$, such that $t = t_0+t_1+t_2= 0.8$, $1.0$ and $1.6$. The inference results of our methods distAngsd-geno, distAngsd-nuc, as well as those of other pre-existing methods (RandomSEQ and ConsensusSEQ) are plotted in FIG. \ref{fig:JC1Mb} and FIG. \ref{fig:GTR1Mb} in the main text, FIG. S8 and FIG. S9 in the Supplementary Information.  Different figures correpond to different average read depth per site ($20$, $10$, $5$, $1$, $0.75$ or $0.5$) and different variable genome length (1Mb in the main text or 0.1Mb in the supplementary Information). Here the variable genome length is the number of sites which purely satisfy the adopted molecular evolutionary model. Base calling error is set to be $0.2\%$. Both the JC69 model and a more generalized GTR model (Table 1.3 in \citet{Yang:2006}) are applied.
   
 % \begin{multicols}{1}
@@ -692,7 +714,7 @@ Our methods can also be extended to jointly estimate the fraction of invariable 
 % \subsubsection{GTR Model}
 % ???
 \vspace{2mm}
-\subsection{Experimental Data}
+\subsection{Inference based on Experimental Data}\label{subsec:ExpInfer}
 From the appearances of the trees in FIG. \ref{fig:OakTree}, it seems that the distAngsd-geno tree can group the $83$ oak samples better compared with the other two trees, as it gives clearest boundaries between {\it Quercus berberidifolia}, {\it Quercus durata var. gabrielensis
 } and {\it Quercus durata var. durata}. 
 
@@ -745,8 +767,9 @@ And a compatibility measurement $m$ is developed (See in Supplementary Informati
 \end{table*}
 
 The larger the compatibility measurement $m$ is, the better the tree go with the prior species knowledge. Table \ref{tab:DownsamplingExperimentalResults} can further validate that distAngsd-geno tree is better than both ConsensusSEQ and ConsensusGT trees when read depth is lower.
+
 \vspace{2mm}
-\section{Discussion}
+\section{Discussion}\label{sec:Discuss}
 We have presented in the work two phylogeny inference methods, i.e., distAngsd-geno and distAngsd-nuc. With genotype likelihood taken into account, both methods can estimate the genetic distance between samples with high uncertainty, which are suitable for the area of ancient DNA where lower coverage is always the case. 
 
 The key characteristic of the both methods is to decompose the likelihood optimization process into two parts, the EM algorithm to obtain the pseudo-observations of joint distribution of genotypes/sampled nucleotides per site between each pair of samples; the maximum likelihood scheme to infer genetic distance (and other related parameters) based on the pseudo-observations. EM algorithm part has nothing to do with the evolutionary model one adopted, thus can be conducted independently and in advance, and the downstream phylogeny inference will only depend on the inferred $10\times 10$ $\hat{\bf M}$ matrix or $4 \times 4$ $\hat{\bf N}$ matrix from the EM part. Thus, we believe our methods can serve as an interface to plug into any existing phylogeny inference software/method. The decomposition will also reduce the complexity of the overall log-likelihood function and reduce the computational costs to conduct the maximum likelihood algorithm.
