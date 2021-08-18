@@ -26,20 +26,21 @@ One and only one following two options must be provided to specify whether to in
 
 * -p_inv gives the simulated true p_inv. It should be provided if a 2-d simulation and inference is conducted.
 
-* -isthreading determines whether the EM algorithm is conducted parallelly
+* -isthreading determines whether the EM algorithm is conducted parallelly. The default value is 0.
 
-* -dobinary determines whether the output files is saved as .bin or .txt.gz
+* -dobinary determines whether the output files is saved as .bin or .txt.gz. The default value is 1.
 
-* -numsites is the number of sites in simuation
+* -numsites is the number of sites in simuation. The default number of sites is 1000000.
 
-* -isuchar determines whether store the real genotype likelihoods in a more compressed unsinged char format
+* -isuchar determines whether store the real genotype likelihoods in a more compressed unsinged char format. The default value is 0, which means the genotype likelihoods in vcf file will be, by default, stored in the double format.
 
-* -RD is the average read depth for simulation
+* -RD is the average read depth for simulation. The default value is 1.0.
 
-* -errorrate is the base calling error for simulation
+* -errorrate is the base calling error for simulation. The default value is 0.002.
 
-* -tdiv is the true divergence time (genetic distance) for simulation
+* -tdiv is the true divergence time (genetic distance) for simulation. The default value is 1.0.
 
-* -t1 -t2 are defined as manuscript
+* -t1 -t2 are defined as manuscript. The default values of t1 and t2 are 0.4 and 0.25, correspondingly.
 
 * -par gives comma-delimited 9 parameters (first 5 for symmetric matrix and last 4 for stationary distribution) for GTR model, and the last 4 as a distribution will be normalised automatically.
+## Cite
