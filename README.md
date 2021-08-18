@@ -1,4 +1,4 @@
-#distAngsd
+# distAngsd
 
 distAngsd is a software to simulate and infer phylogenetic relationships between two individuals.
 
