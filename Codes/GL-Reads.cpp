@@ -39,7 +39,7 @@ int newt, newmat; /*these are control variables used to determine if the transit
 
 int main(int argc,char**argv){
     if (argc == 1){
-        fprintf(stderr,"\t-> ./distAngsd -o -method -model -glf -vcf -simrep -is2Dinfer -p_inv -isthreading -dobinary -isuchar -numsites -RD -errorrate -tdiv -t1 -t2 -par\n");
+        fprintf(stderr,"\t-> ./distAngsd -o -method -model -inglf -outglf -vcf -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -errorrate -tdiv -t1 -t2 -par\n");
         fprintf(stderr,"\t-> Default method is geno, default model is JC.\n");
         fprintf(stderr,"\t-> Default number of sites for simulation (numsites) is 1000000, default mean read depth (RD) is 1.0, default calling error rate (errorrate) is 0.002,\n");
         fprintf(stderr,"\t-> default divergent time (tdiv) is 1.0, default t1 is 0.4, and default t2 is 0.25.\n");
@@ -51,10 +51,12 @@ int main(int argc,char**argv){
         const char* method = p->method;
         const char* model = p->model;
         const char* glfname = p->glfname;
-        const char* vcfname = p->vcfname;
+        char* vcfname = p->vcfname;
+        const char* tabname = p->tabname;
         int isthreading = p->isthreading;
         int dobinary = p->dobinary;
         int is2Dinfer = p->is2Dinfer;
+        int simrep = p->simrep;
         double par[9];
         
         BGZF *fp = NULL;
@@ -78,8 +80,7 @@ int main(int argc,char**argv){
             kstr->l = 0;
         }
         
-        if (p->simrep > 0){
-            int simrep = p->simrep;
+        if (simrep > 0){
             double RD = p->RD;
             int numsites = p->numsites;
             double errorrate = p->errorrate;
@@ -92,11 +93,13 @@ int main(int argc,char**argv){
             string str1 = "Model\tMethod\tReplication\tError\ttdiv\tt1\tt2";
             string strmodel(model);
             string strmethod(method);
-            string str2 = strmodel+"\t"+strmethod+"\t"+to_string(simrep)+"\t"+to_string(errorrate)+"\t"+to_string(tdiv)+"\t"+to_string(tdiv)+"\t"+to_string(t1)+"\t"+to_string(t2);
+            string str2 = strmodel+"\t"+strmethod+"\t"+to_string(simrep)+"\t"+to_string(errorrate)+"\t"+to_string(tdiv)+"\t"+to_string(t1)+"\t"+to_string(t2);
             if (is2Dinfer==1){
                 str1 = str1 + "\tis2Dinfer" + "\tp_inv";
                 str2 = str2 + "\t" + to_string(is2Dinfer) + "\t" + to_string(p_inv);
             }
+            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
+            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout<<str;
             if(dobinary)
@@ -184,20 +187,21 @@ int main(int argc,char**argv){
                     bgzf_write(fp,kstr->s,kstr->l);
                 }
             }
-        }else{
-            char* vcfname=p->vcfname;
+        }else if(vcfname !=NULL){
             int isuchar=p->isuchar;
 //            cout<<"Model\tMethod\tVcf\tIshtreading\tIsuchar\n";
 //            cout<<model<<"\t"<<method<<"\t"<<vcfname<<"\t"<<isthreading<<"\t"<<isuchar<<"\n";
             string strmodel(model);
             string strmethod(method);
             string strvcfname(vcfname);
-            string str1 = "Model\tMethod\tVcf\tIshtreading\tIsuchar";
-            string str2 = strmodel+"\t"+strmethod+"\t"+strvcfname+"\t"+to_string(isthreading)+"\t"+to_string(isuchar);
+            string str1 = "Model\tMethod\tVcf";
+            string str2 = strmodel+"\t"+strmethod+"\t"+strvcfname;
             if (is2Dinfer==1){
                 str1 = str1 + "\tis2Dinfer";
                 str2 = str2 + "\t" + to_string(is2Dinfer);
             }
+            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
+            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
@@ -215,6 +219,50 @@ int main(int argc,char**argv){
             string fr=string("AFngsrelate");
             char *reg=NULL;
             vcftwoDSFS(vcfname, glfname, 2, 0.00, pl, fr,reg, par, isthreading,isuchar,dobinary,is2Dinfer,t,p);
+            string vcfstr;
+            if (is2Dinfer == 1){
+                cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";
+                vcfstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " + to_string(p) + ".\n";
+            }else{
+                cout<<"Estimated t = "<<t<<"\n";
+                vcfstr = "Estimated t = " + to_string(t) + ".\n";
+            }
+            if(dobinary)
+                bgzf_write(fp,vcfstr.c_str(),vcfstr.size());
+            else{
+                ksprintf(kstr,"%s",vcfstr.c_str());
+                bgzf_write(fp,kstr->s,kstr->l);
+                kstr->l = 0;
+            }
+        }else if(tabname !=NULL){
+            int isuchar=p->isuchar;
+            int tabbinary=p->tabbinary;
+            int tabuchar=p->tabuchar;
+            double t = 0;
+            double p = 0;
+            
+            string strmodel(model);
+            string strmethod(method);
+            string strtabname(tabname);
+            string str1 = "Model\tMethod\tInGLTab\tIn_uchar\tIn_binary";
+            string str2 = strmodel+"\t"+strmethod+"\t"+strtabname+"\t"+to_string(tabuchar)+"\t"+to_string(tabbinary);
+            if (is2Dinfer==1){
+                str1 = str1 + "\tis2Dinfer";
+                str2 = str2 + "\t" + to_string(is2Dinfer);
+            }
+            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
+            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
+            string str = str1+"\n"+str2+"\n";
+            cout << str;
+            if(dobinary)
+                bgzf_write(fp,str.c_str(),str.size());
+            else{
+                ksprintf(kstr,"%s",str.c_str());
+                bgzf_write(fp,kstr->s,kstr->l);
+                kstr->l = 0;
+            }
+            
+            tabletwoDSFS(tabname, par, isthreading, tabuchar, tabbinary, is2Dinfer, t, p);
             string vcfstr;
             if (is2Dinfer == 1){
                 cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";

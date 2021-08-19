@@ -423,7 +423,7 @@ size_t getgls_double(char*fname,vector<double *> &mygl, vector<double> &freqs,in
      const char **seqnames = NULL;
      seqnames = bcf_hdr_seqnames(hdr, &nseq); assert(seqnames);//bcf_hdr_id2name(hdr,i)
 //    cout << seqnames <<"\n";
-     char *chr;
+//     char *chr;
      while(1){
           if(seek==NULL){
                if(bcf_read(inf,hdr,rec)!=0)
@@ -449,7 +449,7 @@ size_t getgls_double(char*fname,vector<double *> &mygl, vector<double> &freqs,in
                npl = bcf_get_format_int32(hdr, rec, "PL", &pl, &npl_arr);
             
                if(npl<0){
-                    fprintf(stderr, "BAD SITE %s:%d. return code:%d while fetching PL tag\n", bcf_seqname(hdr,rec), rec->pos, npl);
+                    fprintf(stderr, "BAD SITE %s:%lld. return code:%d while fetching PL tag\n", bcf_seqname(hdr,rec), rec->pos, npl);
                     continue;
                    }
                for (int i=0; i<npl; i++){
@@ -521,14 +521,14 @@ size_t getgls_double(char*fname,vector<double *> &mygl, vector<double> &freqs,in
                                 ln_gl[gind1+ns*10] = ln_gl1[k+n2+ns*k1];
                             }
                         }
+//                    }else if (gind == 14){
+//                        for (int i1 = 0; i1 < renuc.size(); i1++){
+//                            int gind1 = findgenotypeindex(renuc[i1],renuc[i1]);
+//                            for (int ns = 0; ns < nsamples; ns ++){
+//                                ln_gl[gind1+ns*10] = ln_gl1[k+n2+ns*k1];
+//                            }
+//                        }
                     }else if (gind == 14){
-                        for (int i1 = 0; i1 < renuc.size(); i1++){
-                            int gind1 = findgenotypeindex(renuc[i1],renuc[i1]);
-                            for (int ns = 0; ns < nsamples; ns ++){
-                                ln_gl[gind1+ns*10] = ln_gl1[k+n2+ns*k1];
-                            }
-                        }
-                    }else if (gind == 15){
                         for (int i1 = 0; i1 < renuc.size(); i1++){
                             for (int i2 = 0; i2 < renuc.size(); i2++){
                                 for (int ns = 0; ns < nsamples; ns ++){
@@ -563,7 +563,7 @@ size_t getgls_double(char*fname,vector<double *> &mygl, vector<double> &freqs,in
               } else if(vcf_format_field == "GT"){
                    int ngts = bcf_get_genotypes(hdr, rec, &gt, &ngt_arr);
                    if ( ngts<0 ){
-                        fprintf(stderr, "BAD SITE %s:%d. return code:%d while fetching GT tag\n", bcf_seqname(hdr,rec), rec->pos, npl);
+                        fprintf(stderr, "BAD SITE %s:%lld. return code:%d while fetching GT tag\n", bcf_seqname(hdr,rec), rec->pos, npl);
                         continue;
                        }
                    for(int ns=0; ns<nsamples;ns++){
@@ -1628,7 +1628,6 @@ void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, str
     }else{
         double **GLDATA2=NULL;
         GLDATA2 = readbcfvcf_double(fname,nind,nsites,freqs,minind,minfreq,vcf_format_field,vcf_allele_field,seek);
-        cout<<"Double glffile is constructed!\n";
         if (glfname!=NULL){
             gls_writer_double(glfname, dobinary, nsites, GLDATA2);
         }
@@ -1658,6 +1657,196 @@ void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, str
     }
 }
 
+int CheckTable(const char* tabname, size_t &numsites, size_t &cols){
+    kstring_t *kstr = new kstring_t;
+    kstr->s = NULL;
+    kstr->l = kstr->m = 0;
+    
+    numsites = 0;
+    cols = 0;
+    
+    BGZF *fp = NULL;
+    fp = bgzf_open(tabname,"rb");
+    if (fp == NULL){
+        string stabname(tabname);
+        string errs = "\t Can not open the table file "+stabname+".\n";
+        fprintf(stderr,"%s",errs.c_str());
+        bgzf_close(fp);
+        exit(-1);
+    }else{
+        while(bgzf_getline(fp,'\n',kstr)>0){
+            istringstream iss(kstr->s);
+            string word;
+            if (numsites == 0){
+                while (getline(iss,word,'\t')){
+                    cols = cols + 1;
+                }
+            }
+            numsites = numsites + 1;
+        }
+        if (numsites == 0){
+            fprintf(stderr,"\t No data in the table file.\n");
+            bgzf_close(fp);
+            exit(-1);
+        }else{
+            //            cout << numsites << cols << "\n";
+            //            cout << "hello" << "\n";
+            bgzf_close(fp);
+        }
+    }
+    //    cout << "hello" << "\n";
+    //    cout << numsites << "\n";
+    return 0;
+}
+
+int CheckTablebin(const char* tabname, size_t &numsites, size_t &cols, size_t ind, int isuchar){
+    cols = ind*10;
+    numsites = 0;
+    BGZF *fp = NULL;
+    fp = bgzf_open(tabname,"rb");
+    uchar u[20];
+    double d[20];
+    if (fp == NULL){
+        string stabname(tabname);
+        string errs = "\t Can not open the table file "+stabname+".\n";
+        fprintf(stderr,"%s",errs.c_str());
+        bgzf_close(fp);
+        exit(-1);
+    }else{
+        if (isuchar){
+            while(bgzf_read(fp,u,sizeof(uchar)*cols)){
+                numsites = numsites + 1;
+            }
+        }else{
+            while(bgzf_read(fp,d,sizeof(double)*cols)){
+                numsites = numsites + 1;
+            }
+        }
+        if (numsites == 0){
+            fprintf(stderr,"\t No data in the table file.\n");
+            bgzf_close(fp);
+            exit(-1);
+        }else{
+            bgzf_close(fp);
+        }
+    }
+    return 0;
+}
+
+void gls_read(const char* tabname, double **GLDATA, int isuchar, int dobinary){
+    if (isuchar==1){
+        plmatrixbuilder();
+    }
+    BGZF *fp = NULL;
+    fp = bgzf_open(tabname,"rb");
+    if (dobinary == 1){
+        size_t k = 0;
+        if (isuchar == 1){
+            uchar u[20];
+            while (bgzf_read(fp,u,sizeof(uchar)*20)){
+                for (int numcol = 0; numcol < 20; numcol++){
+                    int pl = (int)u[numcol];
+                    if (pl<=PHREDMAX-1){
+                        GLDATA[k][numcol] = exp(pl2ln[pl]);
+                    }else{
+                        GLDATA[k][numcol] = 0;
+                    }
+                }
+                k = k+1;
+            }
+        }else{
+            while (bgzf_read(fp,GLDATA[k],sizeof(double)*20)){
+                k = k+1;
+            }
+        }
+    }else{
+        kstring_t *kstr = new kstring_t;
+        kstr->s = NULL;
+        kstr->l = kstr->m = 0;
+        size_t i = 0,j;
+        while(bgzf_getline(fp,'\n',kstr)>0){
+            istringstream iss(kstr->s);
+            string word;
+            j = 0;
+            while (getline(iss,word,'\t')){
+                if (isuchar == 1) {
+                    if (stoi(word)<=PHREDMAX-1){
+                        GLDATA[i][j] = exp(pl2ln[stoi(word)]);
+                    }else{
+                        GLDATA[i][j] = 0;
+                    }
+                }else{
+                    GLDATA[i][j] = stod(word);
+                }
+                j = j+1;
+            }
+            i = i+1;
+            kstr->l = 0;
+        }
+    }
+    bgzf_close(fp);
+}
+
+void tabletwoDSFS(const char* tabname, double par[9], int isthreading, int inuchar, int inbinary, int is2Dinfer, double &t, double &p){
+    //size_t nsites = 0;
+    //int nind;
+    double parameters[8], twoDSFS[10][10];
+    
+    t = 0.0;
+    p = -1.0;
+    for (int i=5;i<9;i++){
+        pi[i-5] = par[i];
+    }
+    for (int i=0;i<8;i++){
+        parameters[i] = par[i];
+    }
+    
+    size_t numsites = 0;
+    size_t cols = 0;
+    if (inbinary){
+        CheckTablebin(tabname, numsites, cols, 2, inuchar);
+    }else{
+        CheckTable(tabname, numsites, cols);
+    }
+    
+    double **GLDATA;
+    int *SDATA;
+    //
+    GLDATA = (double **) malloc(numsites * sizeof(double *));
+    for (size_t k = 0; k < numsites; k++){
+        GLDATA[k] =(double *) malloc(20 * sizeof(double));
+    }
+    SDATA = (int *) malloc(numsites * sizeof(int));
+    
+    gls_read(tabname, GLDATA, inuchar, inbinary);
+    
+    //Filter the effective numsites
+    size_t eff_numsites = FilterSites(GLDATA, SDATA, numsites);
+    
+    if (isthreading==1){
+        estimate2DSFS_EM_threading(twoDSFS, GLDATA, SDATA, numsites, eff_numsites, 25, 2*10);
+    }else{
+        estimate2DSFS_EM(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
+    }
+    
+    for (size_t i = 0; i < numsites; i++)
+    free(GLDATA[i]);
+    free(GLDATA);
+
+    free(SDATA);
+    
+    //Estimate T
+    if (is2Dinfer == 1){
+        double x[2];
+        estimateTWithInvSite(twoDSFS, x, parameters);
+        cout << "The 2D inferred divergence time is " << x[0] << ",\n";
+        cout << "The 2D inferred fraction of invariable sites is " << x[1] << ".\n";
+        t = x[0];
+        p = x[1];
+    }else{
+        estimateT(twoDSFS, &t, parameters);
+    }
+}
 //#ifdef __WITH_MAIN__
 
 //int main(){

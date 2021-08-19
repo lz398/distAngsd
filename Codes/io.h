@@ -23,16 +23,17 @@
 using namespace std;
 
 typedef struct{
-  //filenames
+    //filenames
     const char* outname;
     const char* method;
     const char* model;
     const char* glfname;
-    // Specify the GTR model
-    double par[9];
-    int dobinary;
-    int is2Dinfer;
     int isthreading;
+    
+    // Specify the model
+    double par[9];
+    int is2Dinfer;
+    
     
     // For simulation
     int simrep;
@@ -46,7 +47,15 @@ typedef struct{
     
     // For real data
     char* vcfname;
+    
+    // For table data
+    const char* tabname;
+    
+    // Output/Input formats
     int isuchar;
+    int dobinary;
+    int tabuchar;
+    int tabbinary;
 }pars;
 
 pars *pars_init();

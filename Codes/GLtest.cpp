@@ -622,6 +622,8 @@ int findgenotypeindex(int i, int j)
     else{printf("error in genotype index conversion table");}
     exit(-1);
 }
+
+
 //int findgenotypeindex(int i, int j)
 //{
 //    int k;
@@ -2691,7 +2693,7 @@ int gls_writer_double(const char* glfname, int dobinary, int nsites, double** gl
     kstr->s = NULL;
     kstr->l = kstr->m = 0;
     for(int i=0;i<nsites;i++){
-        if(dobinary)
+        if(dobinary==1)
             bgzf_write(fp,gls[i],sizeof(double)*20);
         else{
             for(int j=0;j<19;j++){
@@ -2729,7 +2731,7 @@ int gls_writer_uchar(const char* glfname, int dobinary, int nsites, uchar **gls)
     kstr->l = kstr->m = 0;
     
     for(int i=0;i<nsites;i++){
-        if(dobinary)
+        if(dobinary==1)
             bgzf_write(fp,gls[i],sizeof(uchar)*20);
         else{
             for(int j=0;j<19;j++){

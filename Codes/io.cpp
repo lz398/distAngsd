@@ -23,6 +23,7 @@ using namespace std;
 
 pars *pars_init(){
     pars *p =(pars*) calloc(1,sizeof(pars));
+    //filenames
     p->outname = strdup("distAngsdlog");
     // method can be geno, nuc, RandomSEQ, ConsensusSEQ, ConsensusGT for simulation
     // method can only be geno for vcf
@@ -30,11 +31,10 @@ pars *pars_init(){
     // model can be either JC or GTR
     p->model = strdup("JC");
     p->glfname = NULL;
-    p->vcfname = NULL;
-    p->dobinary = 1;
-    p->simrep = -1;
+    p->isthreading = 0;
+    
+    // Specify the model
     p->is2Dinfer = 0;
-    p->p_inv = 0;
     for (int i=0;i<5;i++){
         p->par[i] = 1.0;
     }
@@ -42,14 +42,27 @@ pars *pars_init(){
         p->par[i] = 0.25;
     }
     
+    // For simulation
+    p->simrep = -1;
     p->errorrate = 0.002;
     p->numsites = 1000000;
     p->RD = 1;
     p->tdiv = 1;
     p->t1 = 0.4;
     p->t2 = 0.25;
-    p->isthreading = 0;
+    p->p_inv = 0;
+    
+    // For real data
+    p->vcfname = NULL;
+    
+    // For table data
+    p->tabname = NULL;
+    
+    
     p->isuchar = 0;
+    p->dobinary = 1;
+    p->tabuchar = 0;
+    p->tabbinary = 1;
     return p;
 }
 
@@ -68,7 +81,7 @@ pars *get_pars(int argc,char **argv){
         if(!strcasecmp("-o",key)) p->outname=strdup(val);
         else if(!strcasecmp("-method",key)) p->method=strdup(val);
         else if(!strcasecmp("-model",key)) p->model=strdup(val);
-        else if(!strcasecmp("-glf",key)) p->glfname=strdup(val);
+        else if(!strcasecmp("-outglf",key)) p->glfname=strdup(val);
         else if(!strcasecmp("-vcf",key)) p->vcfname=strdup(val);
         else if(!strcasecmp("-simrep",key)) p->simrep=atoi(val);
         else if(!strcasecmp("-is2Dinfer",key)) p->is2Dinfer=atoi(val);
@@ -79,8 +92,11 @@ pars *get_pars(int argc,char **argv){
         else if(!strcasecmp("-t2",key)) p->t2=atof(val);
         else if(!strcasecmp("-p_inv",key)) p->p_inv=atof(val);
         else if(!strcasecmp("-isthreading",key)) p->isthreading=atoi(val);
-        else if(!strcasecmp("-isuchar",key)) p->isuchar=atoi(val);
-        else if(!strcasecmp("-dobinary",key)) p->dobinary=atoi(val);
+        else if(!strcasecmp("-outuchar",key)) p->isuchar=atoi(val);
+        else if(!strcasecmp("-outbin",key)) p->dobinary=atoi(val);
+        else if(!strcasecmp("-inglf",key)) p->tabname=strdup(val);
+        else if(!strcasecmp("-inuchar",key)) p->tabuchar=atoi(val);
+        else if(!strcasecmp("-inbin",key)) p->tabbinary=atoi(val);
         else if(!strcasecmp("-par",key)){
             stringstream ss(strdup(val));
             while (ss.good() && k<=8){
@@ -101,7 +117,8 @@ pars *get_pars(int argc,char **argv){
         
         ++argv;
     }
-    if ((p->simrep > 0 && p->vcfname != NULL) || (p->simrep <= 0 && p->vcfname == NULL)){
+    int sum = (int)(p->simrep > 0) + (int)(p->vcfname != NULL) + (int)(p->tabname !=NULL);
+    if (sum !=1){
         fprintf(stderr,"\t Please specify whether you want to conduct simulation or to analyse vcf file.\n");
         free(p);
         return NULL;
@@ -114,7 +131,11 @@ pars *get_pars(int argc,char **argv){
         free(p);
         return NULL;
     }else if (p->vcfname !=NULL && strcasecmp(p->method,"geno")){
-        fprintf(stderr,"\t Currenly only distAngsd-geno is implemented for real data analyses!\n");
+        fprintf(stderr,"\t Currenly only distAngsd-geno is implemented for vcf data analyses!\n");
+        free(p);
+        return NULL;
+    }else if (p->tabname !=NULL && strcasecmp(p->method,"geno")){
+        fprintf(stderr,"\t Currenly only distAngsd-geno is implemented for table glf data analyses!\n");
         free(p);
         return NULL;
     }else if ((p->is2Dinfer==1) && ((strcasecmp(p->model,"GTR")) || (!strcasecmp(p->method,"ConsensusGT")))){
