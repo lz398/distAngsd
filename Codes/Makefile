@@ -1,24 +1,53 @@
-CC	      = clang++
-CC_FLAGS	= -g3 -O3 -Wall -I/usr/local/include/  -mmacosx-version-min=11.0
-EXEC	= distAngsd
-LD_FLAGS	= -L/usr/local/lib -lhts -lgsl -lgslcblas -lcblas -lm
-SE_OBJECTS      = io.o bfgs.o GLtest.o GL2Dtest.o ExistingMethods.o vcftest.o GL-Reads.o
+#modied from htslib makefile
+#g++ SimulAncient_func.cpp atomic_fq.cpp -std=c++11 -I /home/wql443/scratch/htslib/ /home/wql443/scratch/htslib/libhts.a -lpthread -lz -lbz2 -llzma -lcurl
+#FLAGS=-O3 -std=c++11
+FLAGS=-ggdb -std=c++11
 
-${EXEC}:  $(SE_OBJECTS)
-	$(CC) $(CC_FLAGS) $(SE_OBJECTS) -o ${EXEC} $(LD_FLAGS)
-io.o: io.cpp io.h
-	$(CC) $(CC_FLAGS) -c io.cpp
-bfgs.o: bfgs.cpp bfgs.h
-	$(CC) $(CC_FLAGS) -c bfgs.cpp
-GLtest.o: GLtest.cpp GLtest.h shared.h
-	$(CC) $(CC_FLAGS) -c GLtest.cpp
-GL2Dtest.o: GL2Dtest.cpp GL2Dtest.h GLtest.h shared.h bfgs.h
-	$(CC) $(CC_FLAGS) -c GL2Dtest.cpp
-ExistingMethods.o: ExistingMethods.cpp ExistingMethods.h GLtest.h shared.h
-	$(CC) $(CC_FLAGS) -c ExistingMethods.cpp
-vcftest.o: vcftest.cpp vcftest.h GLtest.h GL2Dtest.h shared.h
-	$(CC) $(CC_FLAGS) -c vcftest.cpp
-GL-Reads.o: GL-Reads.cpp vcftest.h GLtest.h GL2Dtest.h ExistingMethods.h shared.h io.h
-	$(CC) $(CC_FLAGS) -c GL-Reads.cpp
+CFLAGS += $(FLAGS)
+CXXFLAGS += $(FLAGS)
+
+CSRC = $(wildcard *.c)
+CXXSRC = $(wildcard *.cpp)
+OBJ = $(CSRC:.c=.o) $(CXXSRC:.cpp=.o)
+
+all: distangsd
+
+
+# Adjust $(HTSSRC) to point to your top-level htslib directory
+ifdef HTSSRC
+$(info HTSSRC defined)
+HTS_INCDIR=$(realpath $(HTSSRC))
+HTS_LIBDIR=$(realpath $(HTSSRC))/libhts.a
+else
+$(info HTSSRC not defined, assuming systemwide installation -lhts)
+endif
+
+
+-include $(OBJ:.o=.d)
+
+ifdef HTSSRC
+%.o: %.c
+	$(CC) -c  $(CFLAGS) -I$(HTS_INCDIR) $*.c
+	$(CC) -MM $(CFLAGS)  -I$(HTS_INCDIR) $*.c >$*.d
+
+%.o: %.cpp
+	$(CXX) -c  $(CXXFLAGS)  -I$(HTS_INCDIR) $*.cpp
+	$(CXX) -MM $(CXXFLAGS)  -I$(HTS_INCDIR) $*.cpp >$*.d
+
+distangsd: $(OBJ)
+	$(CXX) $(FLAGS)  -o distangsd *.o $(HTS_LIBDIR) -lz -llzma -lbz2 -lpthread -lcurl -lgsl
+else
+%.o: %.c
+	$(CC) -c  $(CFLAGS)  $*.c
+	$(CC) -MM $(CFLAGS)  $*.c >$*.d
+
+%.o: %.cpp
+	$(CXX) -c  $(CXXFLAGS)  $*.cpp
+	$(CXX) -MM $(CXXFLAGS)  $*.cpp >$*.d
+
+distangsd: $(OBJ)
+	$(CXX) $(FLAGS)  -o distangsd *.o -lz -llzma -lbz2 -lpthread -lcurl -lhts -lgsl
+endif
+
 clean:
-	rm -f ${EXEC} ${SE_OBJECTS}
+	rm  -f distangsd *.o *.d
