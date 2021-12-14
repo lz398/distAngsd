@@ -44,6 +44,7 @@ double gammln(double xx);
 // Poisson distribution
 double Poisson(double xm);
 double uniform();
+double uniform_yang();
 
 /*Different substitution models*/
 //hard coded transition probabilities under JC69 model.  '*par' is not used as JC models uses no parameters beyond t.

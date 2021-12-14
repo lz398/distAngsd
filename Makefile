@@ -49,3 +49,7 @@ endif
 
 clean:
 	rm  -f distangsd *.o *.d
+	
+test:
+	echo "Only subset of analyses is being tested";
+	cd test;

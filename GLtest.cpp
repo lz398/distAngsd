@@ -122,9 +122,9 @@ void SeedSetup(){
     //cout << "Random seed is "<< seed<<"\n";
     //seed it
     //first version rand family
-    srand48(seed);
+    srand(seed);
     //second version drand48 family
-    //srand48(seed);
+    srand48(seed);
 }
 
 void SetSeed(int seed)
@@ -187,8 +187,12 @@ double Poisson(double xm) {
     return em;
 }
 
-
 double uniform()
+{
+    return drand48();
+}
+
+double uniform_yang()
 {
     /*
      U(0,1): AS 183: Appl. Stat. 31:188-190
