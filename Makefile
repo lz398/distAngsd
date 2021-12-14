@@ -10,6 +10,8 @@ OBJ = $(CSRC:.c=.o) $(CXXSRC:.cpp=.o)
 
 all: distangsd
 
+BAMDIR=""
+BDIR=$(realpath $(BAMDIR))
 
 # Adjust $(HTSSRC) to point to your top-level htslib directory
 ifdef HTSSRC
@@ -52,4 +54,4 @@ clean:
 	
 test:
 	echo "Only subset of analyses is being tested";
-	cd test;
+	cd test; ./testAll.sh ../distAngsd $(BDIR);
