@@ -1,4 +1,4 @@
-#[![Build Status](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml) distAngsd
+# [![Build Status](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml) distAngsd
 ## Descriptions
 <strong>distAngsd</strong> is a software to simulate and infer phylogenetic relationships between two individuals, in which two novel methods (i.e., geno and nuc) are proposed. A bunch of other methods are also implemented, e.g., RandomSEQ, ConsensusSEQ and ConsensusGT for comparisons. The software can both conduct simulation and analyses real vcf/bcf file given reliable genotype likelihoods are calculated.
 
