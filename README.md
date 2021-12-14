@@ -62,8 +62,8 @@ One and only one of the following three options must be provided to specify whet
     bcftools filter -Ou -e INFO/INDEL!=0 tmp.bcf -o test.bcf;\
     bgzip test.bcf;\
     bcftools index test.bcf.gz;
-  * Commands:\
-    ./distAngsd -vcf test.bcf.gz [Options];
+  * Commands:
+    * ./distAngsd -vcf test.bcf.gz [Options];
 * distAngsd-geno: 
   * Input: genotype likelihood file [with either tab delimited txt.gz format or binary format]
   * Input Preparation:

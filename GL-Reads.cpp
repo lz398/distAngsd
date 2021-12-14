@@ -275,7 +275,6 @@ int main(int argc,char**argv){
                 cout<<"Estimated t = "<<t<<"\n";
                 mpileupstr = "Estimated t = " + to_string(t) + ".\n";
             }
-            cout<<dobinary<<"\n";
             if(dobinary)
                 bgzf_write(fp,mpileupstr.c_str(),mpileupstr.size());
             else{
