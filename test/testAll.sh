@@ -2,44 +2,48 @@
 #run locally like
 #make test BAMDIR=smallBam/
 
-PRG=""
-BAMDIR=""
 
-if [ $# -eq 0 ]
-then
-    exit 1;
-fi
-
-if [ $# -eq 1 ]
-then
-    PRG=$1
-fi
-
-if [ $# -eq 2 ]
-then
-    PRG=$1
-    BAMDIR=$2
-fi
-
-
-echo "--------------------"
-echo "Using PRG: '${PRG}' and BAMDIR: '${BAMDIR}'"
-echo "--------------------"
-
-WDIR=`dirname $PRG`
-
-RVAL=0
-
-
-if [[ ! -z "$BAMDIR" ]]; then
-echo "Testing -sites"
-time ./testVcf.sh $WDIR/angsd $BAMDIR
-if [ ! $? -eq 0  ]   ;then
-    echo "Problem with -sites exit code: $?"
-#    cat ./testFilterSites.sh.log
-    RVAL=1
-fi
-fi
+PRG=../distAngsd
+$PRG -vcf test.bcf.gz
+md5sum -c checksum.md5 || exit1
+#PRG=""
+#BAMDIR=""
+#
+#if [ $# -eq 0 ]
+#then
+#    exit 1;
+#fi
+#
+#if [ $# -eq 1 ]
+#then
+#    PRG=$1
+#fi
+#
+#if [ $# -eq 2 ]
+#then
+#    PRG=$1
+#    BAMDIR=$2
+#fi
+#
+#
+#echo "--------------------"
+#echo "Using PRG: '${PRG}' and BAMDIR: '${BAMDIR}'"
+#echo "--------------------"
+#
+#WDIR=`dirname $PRG`
+#
+#RVAL=0
+#
+#
+#if [[ ! -z "$BAMDIR" ]]; then
+#echo "Testing -sites"
+#time ./testVcf.sh $WDIR/angsd $BAMDIR
+#if [ ! $? -eq 0  ]   ;then
+#    echo "Problem with -sites exit code: $?"
+##    cat ./testFilterSites.sh.log
+#    RVAL=1
+#fi
+#fi
 #
 #if [[ ! -z "$BAMDIR" ]]; then
 #echo "Testing vcfreading"
