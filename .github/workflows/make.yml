@@ -21,3 +21,5 @@ jobs:
       run: export HTSSRC=`pwd`/htslib; make
     - name: make
       run: make
+    - name: make test
+      run:  make test
