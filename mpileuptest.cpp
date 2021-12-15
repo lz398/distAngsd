@@ -4,19 +4,14 @@
 //
 //  Created by Lei Zhao on 24/11/2021.
 //
-#include <cstdio>
-#include <zlib.h>
-#include <cstring>
-#include <cstdlib>
 #include <iostream>
-#include <vector>
-#include <htslib/kstring.h>
 #include "shared.h"
 #include "GLtest.h"
 #include "GL2Dtest.h"
 #include "vcftest.h"
 #include "mpileuptest.h"
 using namespace std;
+#define LENS 20480
 
 vector<string> split(char* c, const char* src){
     vector<string> res;

@@ -1,12 +1,13 @@
+#include <iostream>
 #include "ExistingMethods.h"
-
+#include "brent.h"
 // Ambiguity Inference
 //Inference: total likelihood based on the inferred joint genotype distribution + _Ambiguity
 double likeGLwithtwoDSFS_Ambiguity(double twoDSFS[10][10], double t, double par[8])
 {
     int g1[2], g2[2];
     double like, totlike=0.0;
-    //cout<<t<<"\n";
+    //std::cout<<t<<"\n";
     
     diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
     gettransitionprobmatGTR(t);  /*then pi[] has to be initialized somehow else*/
@@ -97,17 +98,17 @@ void estimate2DSFS_consensusGT(double twoDSFS[10][10], double **GLDATA, int *SDA
                     compare_t2 = compare_t2 + 1;
                 }
             }
-//            cout<<"individual 1:\n";
+//            std::cout<<"individual 1:\n";
 //            for (int i=1;i<10;i++){
-//                cout<<GLDATA[s][i]<<"\t";
+//                std::cout<<GLDATA[s][i]<<"\t";
 //            }
 //
-//            cout<<"individual 2:\n";
+//            std::cout<<"individual 2:\n";
 //            for (int i=1;i<10;i++){
-//                cout<<GLDATA[s][10+i]<<"\t";
+//                std::cout<<GLDATA[s][10+i]<<"\t";
 //            }
-//            cout<<"\n";
-//            cout << s <<" "<< con_gt1 <<" "<<con_gt2<<"\n";
+//            std::cout<<"\n";
+//            std::cout << s <<" "<< con_gt1 <<" "<<con_gt2<<"\n";
             twoDSFS[con_gt1][con_gt2] = twoDSFS[con_gt1][con_gt2] + 1;
             sum = sum + 1;
         }
@@ -161,9 +162,9 @@ double testtwoDSFS_Ambiguity(double RD, int numsites, double tdiv, double t1, do
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
     //    for (int i = 0; i < numsites; i++){
     //        for (int j = 0; j < 20; j++){
-    //            cout << GLDATA[i][j] << "\t";
+    //            std::cout << GLDATA[i][j] << "\t";
     //        }
-    //        cout << "\n";
+    //        std::cout << "\n";
     //    }
     
     //Filter the effective numsites
@@ -174,7 +175,7 @@ double testtwoDSFS_Ambiguity(double RD, int numsites, double tdiv, double t1, do
     
     //Estimate T
     estimateT_Ambiguity(twoDSFS, &t, parameters);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     for (int i = 0; i < numsites; i++)
     free(GLDATA[i]);
@@ -188,7 +189,7 @@ double likeGLwithtwoDSFS_Ambiguity_v2(double twoDSFS[10][10], double t, double p
 {
     int g1[2], g2[2];
     double like, totlike=0.0;
-    //cout<<t<<"\n";
+    //std::cout<<t<<"\n";
     
     diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
     
@@ -280,9 +281,9 @@ double testtwoDSFS_Ambiguity_v2(double RD, int numsites, double tdiv, double t1,
     
     //    for (int i = 0; i < numsites; i++){
     //        for (int j = 0; j < 20; j++){
-    //            cout << GLDATA[i][j] << "\t";
+    //            std::cout << GLDATA[i][j] << "\t";
     //        }
-    //        cout << "\n";
+    //        std::cout << "\n";
     //    }
     
     //Filter the effective numsites
@@ -293,7 +294,7 @@ double testtwoDSFS_Ambiguity_v2(double RD, int numsites, double tdiv, double t1,
     
     //Estimate T
     estimateT_Ambiguity_v2(twoDSFS, &t, parameters);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     
     for (int i = 0; i < numsites; i++)
@@ -393,9 +394,9 @@ double testtwoDSFS_ngsDist(double RD, int numsites, double tdiv, double t1, doub
     
     //    for (int i = 0; i < numsites; i++){
     //        for (int j = 0; j < 20; j++){
-    //            cout << GLDATA[i][j] << "\t";
+    //            std::cout << GLDATA[i][j] << "\t";
     //        }
-    //        cout << "\n";
+    //        std::cout << "\n";
     //    }
     
     //Filter the effective numsites
@@ -406,24 +407,24 @@ double testtwoDSFS_ngsDist(double RD, int numsites, double tdiv, double t1, doub
     
 //    for (int i=0; i<10; i++){
 //        for (int j=0; j<10; j++){
-//            cout << twoDSFS[i][j] <<"\t";
+//            std::cout << twoDSFS[i][j] <<"\t";
 //        }
-//        cout << "\n";
+//        std::cout << "\n";
 //    }
     
     //    //Estimate T
     //    estimateT_Ambiguity_v2(twoDSFS, &t, parameters);
-    //    cout<<"Estimated t = "<<t<<"\n";
+    //    std::cout<<"Estimated t = "<<t<<"\n";
 //    gen_dist(twoDSFS);
     gen_dist(twoDSFS, GLDATA, SDATA, eff_numsites, numsites, dist, dist_JC, dist1, dist1_JC);
-    cout << "2DSFS ngsDist result is "<<dist<<"\n";
+    std::cout << "2DSFS ngsDist result is "<<dist<<"\n";
     double t_dist = (t1+t2)/2/(1-dist);
-    cout << "2DSFS ngsDist inferred divergence time t is "<<t_dist<<"\n";
-    cout << "2DSFS ngsDist JC result is "<<dist_JC<<"\n";
-    cout << "NgsDist result is "<<dist1<<"\n";
+    std::cout << "2DSFS ngsDist inferred divergence time t is "<<t_dist<<"\n";
+    std::cout << "2DSFS ngsDist JC result is "<<dist_JC<<"\n";
+    std::cout << "NgsDist result is "<<dist1<<"\n";
     double t_dist1 = (t1+t2)/2/(1-dist1);
-    cout << "NgsDist inferred divergence time t is "<<t_dist1<<"\n";
-    cout << "NgsDist JC result is "<<dist1_JC<<"\n";
+    std::cout << "NgsDist inferred divergence time t is "<<t_dist1<<"\n";
+    std::cout << "NgsDist JC result is "<<dist1_JC<<"\n";
     for (int i = 0; i < numsites; i++)
     free(GLDATA[i]);
     free(GLDATA);
@@ -463,12 +464,12 @@ void gen_dist_snp(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_n
     }
 //    for (int i=0;i<9;i++){
 //        for (int j=0;j<9;j++){
-//            cout<<score[i][j]<<"\t";
+//            std::cout<<score[i][j]<<"\t";
 //        }
-//        cout<<"\n";
+//        std::cout<<"\n";
 //    }
-//    cout<<pcsum<<"hahaha\n";
-//    cout<<dist<<"hahaha\n";
+//    std::cout<<pcsum<<"hahaha\n";
+//    std::cout<<dist<<"hahaha\n";
     dist = dist/pcsum;
     dist_JC = -log(1 - (dist * 4/3)) * 3/4;
 //    dist = -log(1-dist);
@@ -544,9 +545,9 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
     
     //    for (int i = 0; i < numsites; i++){
     //        for (int j = 0; j < 20; j++){
-    //            cout << GLDATA[i][j] << "\t";
+    //            std::cout << GLDATA[i][j] << "\t";
     //        }
-    //        cout << "\n";
+    //        std::cout << "\n";
     //    }
     
     //Filter the effective numsites
@@ -557,24 +558,24 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
     
 //    for (int i=0; i<10; i++){
 //        for (int j=0; j<10; j++){
-//            cout << twoDSFS[i][j] <<"\t";
+//            std::cout << twoDSFS[i][j] <<"\t";
 //        }
-//        cout << "\n";
+//        std::cout << "\n";
 //    }
     
     //    //Estimate T
     //    estimateT_Ambiguity_v2(twoDSFS, &t, parameters);
-    //    cout<<"Estimated t = "<<t<<"\n";
+    //    std::cout<<"Estimated t = "<<t<<"\n";
 //    gen_dist(twoDSFS);
     gen_dist_snp(twoDSFS, GLDATA, SDATA, eff_numsites, numsites, dist, dist_JC, dist1, dist1_JC);
-    cout << "2DSFS ngsDist result is "<<dist<<"\n";
+    std::cout << "2DSFS ngsDist result is "<<dist<<"\n";
     double t_dist = (t1+t2)/2/(1-dist);
-    cout << "2DSFS ngsDist inferred divergence time t is "<<t_dist<<"\n";
-    cout << "2DSFS ngsDist JC result is "<<dist_JC<<"\n";
-    cout << "NgsDist result is "<<dist1<<"\n";
+    std::cout << "2DSFS ngsDist inferred divergence time t is "<<t_dist<<"\n";
+    std::cout << "2DSFS ngsDist JC result is "<<dist_JC<<"\n";
+    std::cout << "NgsDist result is "<<dist1<<"\n";
     double t_dist1 = (t1+t2)/2/(1-dist1);
-    cout << "NgsDist inferred divergence time t is "<<t_dist1<<"\n";
-    cout << "NgsDist JC result is "<<dist1_JC<<"\n";
+    std::cout << "NgsDist inferred divergence time t is "<<t_dist1<<"\n";
+    std::cout << "NgsDist JC result is "<<dist1_JC<<"\n";
     for (int i = 0; i < numsites; i++)
     free(GLDATA[i]);
     free(GLDATA);
@@ -633,10 +634,10 @@ void simSEQs_reads_consensus(double **SEQDATA, int genotypes[2], int site, int s
 //    if (ReadDepth>0){
 //        for(int k=0;k<4;k++){
 //            SEQDATA[site][4*species+k] = exp(SEQDATA[site][4*species+k]);
-//            //cout<<SEQDATA[site][4*species+k]<<"\t";
+//            //std::cout<<SEQDATA[site][4*species+k]<<"\t";
 //        }
 //    }
-    //cout<<"\n";
+    //std::cout<<"\n";
 }
 
 void simSEQs_reads_random(double **SEQDATA, int genotypes[2], int site, int species, double e, double RD)
@@ -691,7 +692,7 @@ void simulateGLsTwoSpeciesSEQ_random(double RD, int numsites, double errorrate, 
         simnucleotides(ancDATA[i], SIMMAT);
         //printf(" site %i, anc. nucs: %i %i\n",i,ancDATA[i][0],ancDATA[i][1]);
     }
-    cout<<"Ancient Data was derived!\n";
+    std::cout<<"Ancient Data was derived!\n";
     
     /*k=0;
      for (i=0; i<numsites; i++){
@@ -752,7 +753,7 @@ void simulateGLsTwoSpeciesSEQ_consensus(double RD, int numsites, double errorrat
         simnucleotides(ancDATA[i], SIMMAT);
         //printf(" site %i, anc. nucs: %i %i\n",i,ancDATA[i][0],ancDATA[i][1]);
     }
-    cout<<"Ancient Data was derived!\n";
+    std::cout<<"Ancient Data was derived!\n";
     
     /*k=0;
      for (i=0; i<numsites; i++){
@@ -842,7 +843,7 @@ double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, do
     globnumsites=numsites;
     globerror=errorrate;
     MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ_v1, 0.000001, &t);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     for (int i = 0; i < numsites; i++)
     free(SEQDATA[i]);
@@ -899,7 +900,7 @@ double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1,
     globnumsites=numsites;
     globerror=errorrate;
     MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ_v1, 0.000001, &t);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     for (int i = 0; i < numsites; i++)
     free(SEQDATA[i]);
@@ -956,9 +957,9 @@ double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, 
     
     //    for (int i = 0; i < numsites; i++){
     //        for (int j = 0; j < 20; j++){
-    //            cout << GLDATA[i][j] << "\t";
+    //            std::cout << GLDATA[i][j] << "\t";
     //        }
-    //        cout << "\n";
+    //        std::cout << "\n";
     //    }
     //
     
@@ -971,7 +972,7 @@ double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, 
     //Estimate T
     estimateT_Ambiguity(twoDSFS, &t, parameters);
     //estimateT(twoDSFS, &t, parameters);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     
     for (int i = 0; i < numsites; i++)

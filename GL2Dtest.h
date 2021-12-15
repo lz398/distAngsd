@@ -7,21 +7,7 @@
 
 #ifndef GL2Dtest_h
 #define GL2Dtest_h
-#include <iostream>
-#include <cmath>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Eigenvalues>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <unistd.h>
-#include <chrono>
 #include "shared.h"
-using namespace std;
-using namespace Eigen;
 
 void simnucleotidesinv(int Genotype[2],double simmat[4][4]);
 void simulateGLsTwoSpeciesWithInvSite(double RD, size_t numsites, double p_inv, double errorate, double tdiv, double t1, double t2, double **GLDATA,  double (*pijt)(double t, double *par, int from, int to), double *par);

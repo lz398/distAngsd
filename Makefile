@@ -1,8 +1,8 @@
 #modied from htslib makefile
-FLAGS=-ggdb -std=c++11
+FLAGS=-ggdb 
 
 CFLAGS += $(FLAGS)
-CXXFLAGS += $(FLAGS)
+
 
 CSRC = $(wildcard *.c)
 CXXSRC = $(wildcard *.cpp)
@@ -53,7 +53,7 @@ endif
 
 clean:
 	rm  -f distangsd *.o *.d
-	
+
 test:
 	echo "Only subset of analyses is being tested";
 	cd test; ./testAll.sh;

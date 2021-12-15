@@ -1,39 +1,12 @@
 #ifndef GLtest_h
 #define GLtest_h
-#include <iostream>
-#include <cmath>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Eigenvalues>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <unistd.h>
-#include <chrono>
+
 #include<htslib/bgzf.h>
 #include<htslib/kstring.h>
 #include "shared.h"
-typedef Eigen::Matrix<double, 10, 10> Matrix10d;
-typedef Eigen::Matrix<double, 10, 1> Vector10d;
+
 using namespace std;
 using namespace Eigen;
-
-/*Program checking functions and should be removed later*/
-#ifndef TIC_TOC_H
-#define TIC_TOC_H
-typedef std::chrono::high_resolution_clock Clock;
-typedef std::chrono::milliseconds milliseconds;
-static Clock::time_point t0 = Clock::now();
-void tic();
-void toc();
-#endif
-
-
-/* Optimization function */
-// Brent's method, Golden section search for the minimum of f(x)
-double brent(double ax, double bx, double cx, double (*f)(double), double tol,  double *xmin);
 
 /*Randomness Generators*/
 int static z_rndu=137;

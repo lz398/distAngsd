@@ -1,26 +1,15 @@
-#include <iostream>
-#include <cmath>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Eigenvalues>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <unistd.h>
-#include <chrono>
+#include<htslib/bgzf.h>
+#include<htslib/kstring.h>
+
 #include "shared.h"
 #include "vcftest.h"
 #include "mpileuptest.h"
 #include "GLtest.h"
 #include "GL2Dtest.h"
-#include<htslib/bgzf.h>
-#include<htslib/kstring.h>
 #include "ExistingMethods.h"
 #include "io.h"
-using namespace std;
-using namespace Eigen;
 
 //Inference
 double tole=1e-6;

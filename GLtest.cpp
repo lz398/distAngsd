@@ -1,107 +1,14 @@
 #include <iostream>
-#include <cmath>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Eigenvalues>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
 #include <unistd.h>
-#include <chrono>
-#include<htslib/bgzf.h>
-#include<htslib/kstring.h>
-#include "shared.h"
+#include <htslib/bgzf.h>
+#include <htslib/kstring.h>
 #include <pthread.h>
+
+#include "shared.h"
+#include "brent.h"
 #include "GLtest.h"
-using namespace std;
-using namespace Eigen;
-
-// Test Code which should be removed later on;
-void tic()
-{
-    t0 = Clock::now();
-}
-void toc()
-{
-    Clock::time_point t1 = Clock::now();
-    milliseconds ms = std::chrono::duration_cast<milliseconds>(t1 - t0);
-    std::cout <<"Elapsed time is "<< ms.count() << " milliseconds\n";
-}
-
-/* Optimization function */
-// Brent's method, Golden section search for the minimum of f(x)
-#define NRANSI
-#define ITMAX 100
-#define CGOLD 0.3819660
-#define ZEPS 1.0e-10
-#define SHFT(a,b,c,d) (a)=(b);(b)=(c);(c)=(d);
-#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
-double brent(double ax, double bx, double cx, double (*f)(double), double tol,  double *xmin)
-{
-    double a,b,d,etemp,fu,fv,fw,fx,p,q,r,tol1,tol2,u,v,w,x,xm;
-    double e=0.0;
-    
-    a=(ax < cx ? ax : cx); // a=min{ax,cx}
-    b=(ax > cx ? ax : cx); // b=max{ax,cx}
-    x=w=v=bx; // All stay on the right end of the interval; Keeps x values of previous 2 steps
-    fw=fv=fx=(*f)(x); // All equal to the function value at the right end of the interval. Keeps funtion values corresponding to x of previous 2 steps
-    for (int iter=1;iter<=ITMAX;iter++) {
-        xm=0.5*(a+b); // midpoint of (a,b)=(ax,cx)
-        tol2=2.0*(tol1=tol*fabs(x)+ZEPS);
-        if (fabs(x-xm) <= (tol2-0.5*(b-a))) {
-            *xmin=x;
-            return fx;
-        } // When the interval is small enough, regard as convergence
-        if (fabs(e) > tol1) {
-            r=(x-w)*(fx-fv);
-            q=(x-v)*(fx-fw);
-            p=(x-v)*q-(x-w)*r;
-            q=2.0*(q-r);
-            if (q > 0.0) p = -p;
-            q=fabs(q);
-            etemp=e;
-            e=d;
-            if (fabs(p) >= fabs(0.5*q*etemp) || p <= q*(a-x) || p >= q*(b-x))
-                d=CGOLD*(e=(x >= xm ? a-x : b-x));
-            else {
-                d=p/q;
-                u=x+d;
-                if (u-a < tol2 || b-u < tol2)
-                    d=SIGN(tol1,xm-x);
-            }
-        } else {
-            d=CGOLD*(e=(x >= xm ? a-x : b-x));
-        }
-        u=(fabs(d) >= tol1 ? x+d : x+SIGN(tol1,d));
-        fu=(*f)(u);
-        if (fu <= fx) {
-            if (u >= x) a=x; else b=x;
-            SHFT(v,w,x,u)
-            SHFT(fv,fw,fx,fu)
-        } else {
-            if (u < x) a=u; else b=u;
-            if (fu <= fw || w == x) {
-                v=w;
-                w=u;
-                fv=fw;
-                fw=fu;
-            } else if (fu <= fv || v == x || v == w) {
-                v=u;
-                fv=fu;
-            }
-        }
-    }
-    printf("Too many iterations in brent");
-    *xmin=x;
-    return fx;
-}
-#undef ITMAX
-#undef CGOLD
-#undef ZEPS
-#undef SHFT
-#undef NRANSI
 
 void SeedSetup(){
     long int seed = -1;
@@ -119,7 +26,7 @@ void SeedSetup(){
     //  }
     seed = time(NULL) ^getpid();
     fprintf(stderr,"seed: %ld\n",seed);
-    //cout << "Random seed is "<< seed<<"\n";
+    //std::cout << "Random seed is "<< seed<<"\n";
     //seed it
     //first version rand family
     srand(seed);
@@ -330,7 +237,7 @@ void diagonalizeGTR( double *par)
     RIVEC=RVEC.imag();
     
     if (abs(RRVAL.maxCoeff())>1e-8 || RIVAL.norm()>1e-8){
-        cout<<RRVAL;
+        std::cout<<RRVAL;
         printf("Transitions matrix did not converge or contained non-real values!\n");
         exit(-1);
     }
@@ -817,7 +724,7 @@ void simSEQs_reads(int **SEQDATA, int genotypes[2], size_t site, int species, do
     int nuccount[4]={0,0,0,0};
     int out;
     for(int i=0;i<ReadDepth;i++){
-        //cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
+        //std::cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
         //double e1 = -e*log(1-uniform());
         out = simSEQs_per_read(genotypes, e);
         nuccount[out] = nuccount[out]+1;
@@ -847,7 +754,7 @@ int simGLs_per_read(double **GLDATA, int genotypes[2], size_t site, int species,
     }else{
         out = in;
     }
-    //cout << "read is " << out <<"\n";
+    //std::cout << "read is " << out <<"\n";
     double prob;
     int gene[2];
     for (int k=0; k<10; k++){
@@ -899,11 +806,11 @@ void simGLs_reads(double **GLDATA, int genotypes[2], size_t site, int species, d
     for(int k=0;k<10;k++){
         GLDATA[site][10*species+k] = 0;
     }
-    //cout<<"Site "<<site<<" Genotype is "<<genotypes[0]<<genotypes[1]<<"\n";
+    //std::cout<<"Site "<<site<<" Genotype is "<<genotypes[0]<<genotypes[1]<<"\n";
     int ReadDepth = ReaddepthGenerator(RD, 0);
-    //cout << "ReadDepth is " << ReadDepth << "\n";
+    //std::cout << "ReadDepth is " << ReadDepth << "\n";
     for(int i=0;i<ReadDepth;i++){
-        //cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
+        //std::cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
         //double e1 = -e*log(1-uniform());
         //        double e1 = -e*log(1-uniform());
         //        if (e1 > 0.5) {e1=0.5;}
@@ -943,7 +850,7 @@ void simulateGLsTwoSpecies(double RD, size_t numsites, double errorate, double t
         simnucleotides(ancDATA[i], SIMMAT);
         // printf(" site %i, anc. nucs: %i %i\n",i,ancDATA[i][0],ancDATA[i][1]);
     }
-    cout<<"Ancient Data was derived!\n";
+    std::cout<<"Ancient Data was derived!\n";
     
     /*k=0;
      for (i=0; i<numsites; i++){
@@ -958,7 +865,7 @@ void simulateGLsTwoSpecies(double RD, size_t numsites, double errorate, double t
     //makeGLswitchmatrix(errorate, switchmatrix, simswitchmatrix);
     for (size_t i=0; i<numsites; i++){
         simpoly(ancDATA[i][0], SIMMAT, genotypes);
-        //       cout<<genotypes[0]<<"\n";
+        //       std::cout<<genotypes[0]<<"\n";
         TrueGenome[i][0] = genotypes[0];
         TrueGenome[i][1] = genotypes[1];
         //    if (ancDATA[i][0] != genotypes[0]) k++;
@@ -982,12 +889,12 @@ void simulateGLsTwoSpecies(double RD, size_t numsites, double errorate, double t
         //printf(" site %i, genotypes species 2: %i %i\n",i,genotypes[0], genotypes[1]);
     }
     
-    //cout<<TrueGenome[100][0]<<"\n";
+    //std::cout<<TrueGenome[100][0]<<"\n";
 //    for (int i=0; i<1000; i++){
 //        for (int j=0; j<4; j++){
-//            cout << TrueGenome[i][j] << "\t";
+//            std::cout << TrueGenome[i][j] << "\t";
 //        }
-//        cout << "\n";
+//        std::cout << "\n";
 //    }
 //    int d1 = 0;
 //    int d2 = 0;
@@ -1009,11 +916,11 @@ void simulateGLsTwoSpecies(double RD, size_t numsites, double errorate, double t
 //    }
 //    double l1 = (double)d3*0.25;
 //    double l2 = ((double)d1+(double)d2)*0.25;
-//    cout << (l1-l2)/l1 <<"\n";
-//    cout << (t1+t2)/2*l1/l2<<"\n";
-//    cout << (t1+t2)/2/(1+log(1-(l1-l2)/l1))<<"\n";
-    //cout << -(t1+t2)/2*0.75*log(1-(l1-l2)/l1*(double)4/(double)3)<<"\n";
-    //cout << -log(1-(l1-l2)/l1) <<"\n";
+//    std::cout << (l1-l2)/l1 <<"\n";
+//    std::cout << (t1+t2)/2*l1/l2<<"\n";
+//    std::cout << (t1+t2)/2/(1+log(1-(l1-l2)/l1))<<"\n";
+    //std::cout << -(t1+t2)/2*0.75*log(1-(l1-l2)/l1*(double)4/(double)3)<<"\n";
+    //std::cout << -log(1-(l1-l2)/l1) <<"\n";
     /*then we free memory*/
     for (size_t i=0; i<numsites; i++)
     free(ancDATA[i]);
@@ -1045,7 +952,7 @@ size_t FilterSites(double **GLDATA, int *SDATA, size_t numsites){
             eff_numsites = eff_numsites + 1;
         }
     }
-    cout << "Effective number of sites is "<<eff_numsites<<"\n";
+    std::cout << "Effective number of sites is "<<eff_numsites<<"\n";
     return eff_numsites;
 }
 
@@ -1147,7 +1054,7 @@ void EMStepfor2DSFS_threading_initial(size_t numsites,int rowL,int nthreads,vect
      tmp.rowlen = rowL;
      jobvec.push_back(tmp);
      //
-     //cout<<testvec.size();
+     //std::cout<<testvec.size();
      fprintf(stderr,"[%s] beginning\n",__FUNCTION__);
  }
  
@@ -1301,7 +1208,7 @@ double estimate2DSFS_EM_threading(double twoDSFS[10][10], double **GLDATA, int* 
      vector<EMjob> jobvec;
      EMStepfor2DSFS_threading_initial(numsites,rowL,nthreads,jobvec,GLDATA,SDATA);
      pthread_t *mythd = new pthread_t[nthreads];
-     cout << jobvec.size()<<"\n";
+     std::cout << jobvec.size()<<"\n";
      
      //tic();
      do {
@@ -1335,7 +1242,7 @@ double likeGLwithtwoDSFS(double twoDSFS[10][10], double t, double par[8])
 {
     int g1[2], g2[2];
     double like, totlike=0.0;
-    //cout<<t<<"\n";
+    //std::cout<<t<<"\n";
     
     diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
     gettransitionprobmatGTR(t);  /*then pi[] has to be initialized somehow else*/
@@ -1500,9 +1407,9 @@ double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2
     
     //    for (int i = 0; i < numsites; i++){
     //        for (int j = 0; j < 20; j++){
-    //            cout << GLDATA[i][j] << "\t";
+    //            std::cout << GLDATA[i][j] << "\t";
     //        }
-    //        cout << "\n";
+    //        std::cout << "\n";
     //    }
     //
     
@@ -1520,7 +1427,7 @@ double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2
     
     //Estimate T
     estimateT(twoDSFS, &t, parameters);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     
     for (size_t i = 0; i < numsites; i++)
@@ -1580,7 +1487,7 @@ double testtwoDSFS_m(double RD, size_t numsites, double tdiv, double t1, double 
     
     //Estimate T
     estimateT_m(twoDSFS, &t, parameters,t1,t2);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     for (size_t i = 0; i < numsites; i++)
     free(GLDATA[i]);
@@ -1600,11 +1507,11 @@ int simSEQs_per_read_v1(double **SEQDATA, int genotypes[2], size_t site, int spe
     double u = uniform();
     if (u < e) {
         out = (in+1+(int)floor(3.0*uniform()))%4;
-        //cout<<"in: "<<in<<" "<<"out: "<<out<<"\n";
+        //std::cout<<"in: "<<in<<" "<<"out: "<<out<<"\n";
     }else{
         out = in;
     }
-    //cout<<"species "<<species<<" site "<<site<<" out :"<<out<<"\n";
+    //std::cout<<"species "<<species<<" site "<<site<<" out :"<<out<<"\n";
     if (flag == 1){
         double a = log(1.0-e);
         double b = log(e)-log(3.0);
@@ -1630,7 +1537,7 @@ void simSEQs_reads_v1(double **SEQDATA, int genotypes[2], size_t site, int speci
     }
     int j=(int)floor((double)ReadDepth*uniform());
     for(int i=0;i<ReadDepth;i++){
-        //cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
+        //std::cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
         if (i!=j){
             out = simSEQs_per_read_v1(SEQDATA, genotypes, site, species, e,0);
         }else{
@@ -1648,10 +1555,10 @@ void simSEQs_reads_v1(double **SEQDATA, int genotypes[2], size_t site, int speci
     if (ReadDepth>0){
         for(int k=0;k<4;k++){
             SEQDATA[site][4*species+k] = exp(SEQDATA[site][4*species+k]);
-            //cout<<SEQDATA[site][4*species+k]<<"\t";
+            //std::cout<<SEQDATA[site][4*species+k]<<"\t";
         }
     }
-    //cout<<"\n";
+    //std::cout<<"\n";
 }
 
 
@@ -1677,7 +1584,7 @@ void simulateGLsTwoSpeciesSEQ_v1(double RD, size_t numsites, double errorrate, d
         simnucleotides(ancDATA[i], SIMMAT);
         //printf(" site %i, anc. nucs: %i %i\n",i,ancDATA[i][0],ancDATA[i][1]);
     }
-    cout<<"Ancient Data was derived!\n";
+    std::cout<<"Ancient Data was derived!\n";
     
     /*k=0;
      for (i=0; i<numsites; i++){
@@ -1743,7 +1650,7 @@ size_t FilterSitesSEQ(double **SEQDATA, int *SEQ_SDATA, size_t numsites){
             eff_numsites = eff_numsites + 1;
         }
     }
-    cout << "Effective number of sites is "<<eff_numsites<<"\n";
+    std::cout << "Effective number of sites is "<<eff_numsites<<"\n";
     return eff_numsites;
 }
 
@@ -1819,7 +1726,7 @@ double testsimSEQDATA_v1(double RD, size_t numsites, double tdiv, double t1, dou
     globnumsites=numsites;
     globerror=errorrate;
     MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ_v1, 0.000001, &t);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     for (size_t i = 0; i < numsites; i++)
     free(SEQDATA[i]);
@@ -1838,7 +1745,7 @@ int simSEQs_per_read_v2(int genotypes[2], size_t site, int species, double e)
     double u = uniform();
     if (u < e) {
         out = (in+1+(int)floor(3.0*uniform()))%4;
-        //cout<<"in: "<<in<<" "<<"out: "<<out<<"\n";
+        //std::cout<<"in: "<<in<<" "<<"out: "<<out<<"\n";
     }else{
         out = in;
     }
@@ -1853,7 +1760,7 @@ void simSEQs_reads_v2(vector<vector<double4> > &P, int genotypes[2], size_t site
     int out;
     vector<double4> pstr;
     for(int i=0;i<ReadDepth;i++){
-        //cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
+        //std::cout<<simGLs_per_read(GLDATA, genotypes, site, species, e)<<"\n";
         out=simSEQs_per_read_v2(genotypes, site, species, e);
         double4 str;
         for (int j=0;j<4;j++){
@@ -1870,7 +1777,7 @@ void simSEQs_reads_v2(vector<vector<double4> > &P, int genotypes[2], size_t site
         nuccount[out] = nuccount[out]+1;
     }
     P.push_back(pstr);
-    //cout<<"\n";
+    //std::cout<<"\n";
 }
 
 /*Simulation: Simulate two individuals' genome and reads in two species.
@@ -1895,7 +1802,7 @@ void simulateGLsTwoSpeciesSEQ_v2(double RD, size_t numsites, double errorrate, d
         simnucleotides(ancDATA[i], SIMMAT);
         //printf(" site %i, anc. nucs: %i %i\n",i,ancDATA[i][0],ancDATA[i][1]);
     }
-    cout<<"Ancient Data was derived!\n";
+    std::cout<<"Ancient Data was derived!\n";
     
     /*k=0;
      for (i=0; i<numsites; i++){
@@ -1944,7 +1851,7 @@ size_t CheckSites(vector<vector<double4> >&P0, vector<vector<double4> >&P1, size
             eff_numsites += 1;
         }
     }
-    cout << "Effective number of sites is "<<eff_numsites<<"\n";
+    std::cout << "Effective number of sites is "<<eff_numsites<<"\n";
     return eff_numsites;
 }
 
@@ -1952,7 +1859,7 @@ size_t CheckSites(vector<vector<double4> >&P0, vector<vector<double4> >&P1, size
 double likeSEQwithtwoDSFS(double SEQ2DSFS[4][4], double t, double par[8])
 {
     double totlike=0.0;
-    //cout<<t<<"\n";
+    //std::cout<<t<<"\n";
     
     diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
     gettransitionprobmatGTR(t);  /*then pi[] has to be initialized somehow else*/
@@ -2078,10 +1985,10 @@ void EMStepforNuc2DSFS_threading_initial(size_t numsites, int nthreads,vector<EM
          jobvec.push_back(tmp);
          tmp.p0.clear();
          tmp.p1.clear();
-//         cout << k << "\n";
+//         std::cout << k << "\n";
 //         if (jobvec[k].p0[0].size()>0 && jobvec[k].p1[0].size()>0){
-//         cout<<jobvec[k].p0[0][0].vec[0]<<" "<<jobvec[k].p0[0][0].vec[1]<<" "<<jobvec[k].p0[0][0].vec[2]<<" "<<jobvec[k].p0[0][0].vec[3]<<"\n";
-//         cout<<jobvec[k].p1[0][0].vec[0]<<" "<<jobvec[k].p1[0][0].vec[1]<<" "<<jobvec[k].p1[0][0].vec[2]<<" "<<jobvec[k].p1[0][0].vec[3]<<"\n";
+//         std::cout<<jobvec[k].p0[0][0].vec[0]<<" "<<jobvec[k].p0[0][0].vec[1]<<" "<<jobvec[k].p0[0][0].vec[2]<<" "<<jobvec[k].p0[0][0].vec[3]<<"\n";
+//         std::cout<<jobvec[k].p1[0][0].vec[0]<<" "<<jobvec[k].p1[0][0].vec[1]<<" "<<jobvec[k].p1[0][0].vec[2]<<" "<<jobvec[k].p1[0][0].vec[3]<<"\n";
 //         }
      }
      tmp.index = nthreads-1;
@@ -2098,7 +2005,7 @@ void EMStepforNuc2DSFS_threading_initial(size_t numsites, int nthreads,vector<EM
      tmp.p1.clear();
      P0.clear();
      P1.clear();
-     //cout<<testvec.size();
+     //std::cout<<testvec.size();
      fprintf(stderr,"[%s] beginning\n",__FUNCTION__);
  }
  
@@ -2288,16 +2195,16 @@ double estimateNuc2DSFS_EM_threading(double SEQ2DSFS[4][4], vector<vector<double
      EMStepforNuc2DSFS_threading_initial(numsites, nthreads, jobvec, P0, P1);
 //     EMStepfor2DSFS_threading_initial(numsites,rowL,nthreads,jobvec,GLDATA,SDATA);
      pthread_t *mythd = new pthread_t[nthreads];
-//     cout << jobvec.size()<<"\n";
+//     std::cout << jobvec.size()<<"\n";
      
      //tic();
      do {
          EMStepforNuc2DSFS_threading(mythd,nthreads,jobvec,ptemp,numsites);
 //         for (int i=0; i<4; i++){
 //             for (int j=0; j<4; j++){
-//                 cout << ptemp[i][j]<<"\t";
+//                 std::cout << ptemp[i][j]<<"\t";
 //             }
-//             cout<<"\n";
+//             std::cout<<"\n";
 //         }
          d=0.0;
          for (int i=0; i<4; i++){
@@ -2372,7 +2279,7 @@ double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, doubl
     }
     
     estimateTSEQ2DSFS(SEQ2DSFS, &t, parameters);
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     for (size_t s = 0; s < numsites; s++){
         P0[s].clear();
@@ -2436,7 +2343,7 @@ void GetEMMatrix(double tdiv0, double t10, double t20, size_t numsites, double**
                     }
                 }
             }
-            //cout<<s<<"sum_p is "<<sum_p<<"\n";
+            //std::cout<<s<<"sum_p is "<<sum_p<<"\n";
         }
     }
 }
@@ -2482,7 +2389,7 @@ double Q1(double t1, int l){
             }
         }
     } else {
-        cout<<"Error: l can be either 1 or 2!";
+        std::cout<<"Error: l can be either 1 or 2!";
     }
     return -sum0;
 }
@@ -2597,7 +2504,7 @@ int EMAccelforT(double* t0, double *t, size_t numsites,double **GLDATA, int *SDA
         stepMax = mstep*stepMax;
     }
     
-    //cout<<t[0]<<" "<<t[1]<<" "<<t[2]<<"\n";
+    //std::cout<<t[0]<<" "<<t[1]<<" "<<t[2]<<"\n";
     return 1;
 }
 
@@ -2612,7 +2519,7 @@ void EMlikelihoodforT(double **GLDATA, int* SDATA, size_t numsites, double tdiv0
     
     for (int i=0;i<3;i++){
         t[i]=t0[i]+1;
-        //cout<<t[i]<<"\n";
+        //std::cout<<t[i]<<"\n";
     }
     double tdiff[3];
     differr(t, t0, tdiff, 3);
@@ -2626,7 +2533,7 @@ void EMlikelihoodforT(double **GLDATA, int* SDATA, size_t numsites, double tdiv0
         differr(t, t0, tdiff, 3);
         tdiff_SumSquare = err(tdiff,3);
     }
-    cout << t[0] <<" "<<t[1]<<" "<<t[2]<<"\n";
+    std::cout << t[0] <<" "<<t[1]<<" "<<t[2]<<"\n";
     //toc();
 }
 
@@ -2678,7 +2585,7 @@ double testjointEM(double RD, size_t numsites, double tdiv, double t1, double t2
     
     EMlikelihoodforT(GLDATA, SDATA, numsites, 0.1, 0.04, 0.02,&tt[0]);
     t = tt[0]+tt[1]+tt[2];
-    cout<<"Estimated t = "<<t<<"\n";
+    std::cout<<"Estimated t = "<<t<<"\n";
     
     return t;
 }
@@ -2713,9 +2620,9 @@ int gls_writer_double(const char* glfname, int dobinary, int nsites, double** gl
     }
     if(dobinary == 0){
         bgzf_write(fp,kstr->s,kstr->l);
-        cout<<"Double txt glffile is constructed!\n";
+        std::cout<<"Double txt glffile is constructed!\n";
     }else{
-        cout<<"Double binary glffile is constructed!\n";
+        std::cout<<"Double binary glffile is constructed!\n";
     }
     bgzf_close(fp);
     return 0;
@@ -2751,9 +2658,9 @@ int gls_writer_uchar(const char* glfname, int dobinary, int nsites, uchar **gls)
     }
     if(dobinary == 0){
         bgzf_write(fp,kstr->s,kstr->l);
-        cout<<"Unsigned char txt glffile is constructed!\n";
+        std::cout<<"Unsigned char txt glffile is constructed!\n";
     }else{
-        cout<<"Unsigned char binary glffile is constructed!\n";
+        std::cout<<"Unsigned char binary glffile is constructed!\n";
     }
     bgzf_close(fp);
     return 0;
