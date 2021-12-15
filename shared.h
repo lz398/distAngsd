@@ -7,32 +7,13 @@
 
 #ifndef special_h
 #define special_h
-#include <iostream>
-#include <cmath>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Eigenvalues>
-#include <string>
-#include <sstream>
-#include <fstream>
 #include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <unistd.h>
-#include <chrono>
-#include <htslib/vcf.h>
-#include <htslib/kstring.h>
-#include <limits>
-#include <pthread.h>
-#include <cassert>
-using namespace Eigen;
-using namespace std;
-
-
+#include <eigen3/Eigen/Core>
 
 extern double tole;
 
-extern MatrixXd RRVEC, LRVEC, PMAT, PMATdt, PMATdt2;
-extern VectorXd RRVAL, pi; /*RRVEC and LRVEC are globals used by
+extern Eigen::MatrixXd RRVEC, LRVEC, PMAT, PMATdt, PMATdt2;
+extern Eigen::VectorXd RRVAL, pi; /*RRVEC and LRVEC are globals used by
                            diagonalizeGTR and gettransitionprobmatGTR.
                            PMAT and pi is the transition probability matrix and stationary distcb., respectively, accessed by diagonalizeGTR and gettransitionprobmatGTR and pijtGTR.
                            */
@@ -40,7 +21,7 @@ extern double GLOBtwoDSFS[10][10], GLOBSEQ2DSFS[4][4], GLOBpar[8], globerror, gl
 extern size_t globnumsites;
 extern double **SEQDATA, **GLOBPsum;
 extern int *SEQ_SDATA;
-extern int **DATA; /*the data is stored here*/
+
 extern int newt, newmat; /*these are control variables used to determine if the transition probability matrix needs to be recalculated*/
 const int PHREDMAX=256;
 extern float pl2ln[PHREDMAX];
@@ -71,8 +52,8 @@ struct double4{
 struct EMjobforSEQ2DSFS{
     size_t index;
     size_t psum;
-    vector<vector<double4> > p0;
-    vector<vector<double4> > p1;
+  std::vector<std::vector<double4> > p0;
+  std::vector<std::vector<double4> > p1;
     size_t start;
     size_t len;
     double segESEQSFS2[4][4];
