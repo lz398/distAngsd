@@ -1,16 +1,16 @@
 #include <iostream>
 #include <vector>
 #include <htslib/vcf.h>
-#include <cmath>
-#include <limits>
+
 #include <string>
 #include <pthread.h>
-#include <cassert>
+
+
 #include "shared.h"
 #include "GLtest.h"
 #include "GL2Dtest.h"
 #include "vcftest.h"
-//#include "special.h"
+
 #define diskio_threads 24
 using namespace std;
 
