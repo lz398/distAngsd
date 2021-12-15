@@ -2605,21 +2605,21 @@ int gls_writer_double(const char* glfname, int dobinary, int nsites, double** gl
     kstr->l = kstr->m = 0;
     for(int i=0;i<nsites;i++){
         if(dobinary==1)
-            bgzf_write(fp,gls[i],sizeof(double)*20);
+            my_bgzf_write(fp,gls[i],sizeof(double)*20);
         else{
             for(int j=0;j<19;j++){
                 ksprintf(kstr,"%f\t",gls[i][j]);
             }
             ksprintf(kstr,"%f\n",gls[i][19]);
             if(kstr->l>10000000){
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
 
         }
     }
     if(dobinary == 0){
-        bgzf_write(fp,kstr->s,kstr->l);
+        my_bgzf_write(fp,kstr->s,kstr->l);
         std::cout<<"Double txt glffile is constructed!\n";
     }else{
         std::cout<<"Double binary glffile is constructed!\n";
@@ -2643,21 +2643,21 @@ int gls_writer_uchar(const char* glfname, int dobinary, int nsites, uchar **gls)
     
     for(int i=0;i<nsites;i++){
         if(dobinary==1)
-            bgzf_write(fp,gls[i],sizeof(uchar)*20);
+            my_bgzf_write(fp,gls[i],sizeof(uchar)*20);
         else{
             for(int j=0;j<19;j++){
                 ksprintf(kstr,"%d\t",(int)gls[i][j]);
             }
             ksprintf(kstr,"%d\n",(int)gls[i][19]);
             if(kstr->l>10000000){
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
             
         }
     }
     if(dobinary == 0){
-        bgzf_write(fp,kstr->s,kstr->l);
+        my_bgzf_write(fp,kstr->s,kstr->l);
         std::cout<<"Unsigned char txt glffile is constructed!\n";
     }else{
         std::cout<<"Unsigned char binary glffile is constructed!\n";

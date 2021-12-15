@@ -9,6 +9,7 @@
 #define special_h
 #include <vector>
 #include <eigen3/Eigen/Core>
+#include <htslib/bgzf.h>
 
 extern double tole;
 
@@ -73,4 +74,7 @@ struct EMjobforSEQ2DSFS{
 //    double segESEQSFS2[4][4];
 //    double SEQ2DSFS[4][4];
 //}
+
+void my_bgzf_write(BGZF *fp, const void *data, size_t length);
+
 #endif /* special_h */

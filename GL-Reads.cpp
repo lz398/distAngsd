@@ -61,13 +61,13 @@ int main(int argc,char**argv){
         }
         cout<<"\n";
         if(dobinary)
-            bgzf_write(fp,par,sizeof(double)*9);
+            my_bgzf_write(fp,par,sizeof(double)*9);
         else{
             for(int i = 0; i<8; i++){
                 ksprintf(kstr,"%f\t",par[i]);
             }
             ksprintf(kstr,"%f\n",par[8]);
-            bgzf_write(fp,kstr->s,kstr->l);
+            my_bgzf_write(fp,kstr->s,kstr->l);
             kstr->l = 0;
         }
         
@@ -94,10 +94,10 @@ int main(int argc,char**argv){
             string str = str1+"\n"+str2+"\n";
             cout<<str;
             if(dobinary)
-                bgzf_write(fp,str.c_str(),str.size());
+                my_bgzf_write(fp,str.c_str(),str.size());
             else{
                 ksprintf(kstr,"%s",str.c_str());
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
             if (is2Dinfer==1){
@@ -124,26 +124,26 @@ int main(int argc,char**argv){
                         //                repstr = repstr + "Estimated t = " + to_string(t) + "\n";
                         string repstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " + to_string(p) + ".\n";
                         if(dobinary)
-                            bgzf_write(fp,repstr.c_str(),repstr.size());
+                            my_bgzf_write(fp,repstr.c_str(),repstr.size());
                         else{
                             ksprintf(kstr,"%s",repstr.c_str());
                             if(kstr->l>10000000){
-                                bgzf_write(fp,kstr->s,kstr->l);
+                                my_bgzf_write(fp,kstr->s,kstr->l);
                                 kstr->l = 0;
                             }
                         }
                     }
                     if(dobinary == 0){
-                        bgzf_write(fp,kstr->s,kstr->l);
+                        my_bgzf_write(fp,kstr->s,kstr->l);
                     }
 //                }else{
 //                    string repstr = "Symmetric models, such as JC, are proved to have multi-solutions in 2D inferences, please try GTR.\nConsensusGT is not suitable for 2D inferences, please try other methods.\n";
 //                    cout << repstr;
 //                    if(dobinary)
-//                        bgzf_write(fp,repstr.c_str(),repstr.size());
+//                        my_bgzf_write(fp,repstr.c_str(),repstr.size());
 //                    else{
 //                        ksprintf(kstr,"%s",repstr.c_str());
-//                        bgzf_write(fp,kstr->s,kstr->l);
+//                        my_bgzf_write(fp,kstr->s,kstr->l);
 //                        kstr->l = 0;
 //                    }
 //                }
@@ -165,17 +165,17 @@ int main(int argc,char**argv){
                     //                repstr = repstr + "Estimated t = " + to_string(t) + "\n";
                     string repstr = "Estimated t = " + to_string(t) + ".\n";
                     if(dobinary)
-                        bgzf_write(fp,repstr.c_str(),repstr.size());
+                        my_bgzf_write(fp,repstr.c_str(),repstr.size());
                     else{
                         ksprintf(kstr,"%s",repstr.c_str());
                         if(kstr->l>10000000){
-                            bgzf_write(fp,kstr->s,kstr->l);
+                            my_bgzf_write(fp,kstr->s,kstr->l);
                             kstr->l = 0;
                         }
                     }
                 }
                 if(dobinary == 0){
-                    bgzf_write(fp,kstr->s,kstr->l);
+                    my_bgzf_write(fp,kstr->s,kstr->l);
                 }
             }
         }else if(vcfname !=NULL){
@@ -196,10 +196,10 @@ int main(int argc,char**argv){
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
-                bgzf_write(fp,str.c_str(),str.size());
+                my_bgzf_write(fp,str.c_str(),str.size());
             else{
                 ksprintf(kstr,"%s",str.c_str());
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
             
@@ -218,10 +218,10 @@ int main(int argc,char**argv){
                 vcfstr = "Estimated t = " + to_string(t) + ".\n";
             }
             if(dobinary)
-                bgzf_write(fp,vcfstr.c_str(),vcfstr.size());
+                my_bgzf_write(fp,vcfstr.c_str(),vcfstr.size());
             else{
                 ksprintf(kstr,"%s",vcfstr.c_str());
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
         }else if(mpileupname != NULL){
@@ -240,10 +240,10 @@ int main(int argc,char**argv){
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
-                bgzf_write(fp,str.c_str(),str.size());
+                my_bgzf_write(fp,str.c_str(),str.size());
             else{
                 ksprintf(kstr,"%s",str.c_str());
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
             
@@ -265,10 +265,10 @@ int main(int argc,char**argv){
                 mpileupstr = "Estimated t = " + to_string(t) + ".\n";
             }
             if(dobinary)
-                bgzf_write(fp,mpileupstr.c_str(),mpileupstr.size());
+                my_bgzf_write(fp,mpileupstr.c_str(),mpileupstr.size());
             else{
                 ksprintf(kstr,"%s",mpileupstr.c_str());
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
         }else if(tabname !=NULL){
@@ -292,10 +292,10 @@ int main(int argc,char**argv){
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
-                bgzf_write(fp,str.c_str(),str.size());
+                my_bgzf_write(fp,str.c_str(),str.size());
             else{
                 ksprintf(kstr,"%s",str.c_str());
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
             
@@ -309,10 +309,10 @@ int main(int argc,char**argv){
                 vcfstr = "Estimated t = " + to_string(t) + ".\n";
             }
             if(dobinary)
-                bgzf_write(fp,vcfstr.c_str(),vcfstr.size());
+                my_bgzf_write(fp,vcfstr.c_str(),vcfstr.size());
             else{
                 ksprintf(kstr,"%s",vcfstr.c_str());
-                bgzf_write(fp,kstr->s,kstr->l);
+                my_bgzf_write(fp,kstr->s,kstr->l);
                 kstr->l = 0;
             }
         }
