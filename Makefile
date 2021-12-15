@@ -10,8 +10,10 @@ OBJ = $(CSRC:.c=.o) $(CXXSRC:.cpp=.o)
 
 all: distangsd
 
-BAMDIR=""
-BDIR=$(realpath $(BAMDIR))
+.PHONY: all clean test
+
+# BAMDIR=""
+# BDIR=$(realpath $(BAMDIR))
 
 # Adjust $(HTSSRC) to point to your top-level htslib directory
 ifdef HTSSRC

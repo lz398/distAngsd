@@ -3,9 +3,186 @@
 #make test BAMDIR=smallBam/
 
 
-PRG=../distAngsd
-$PRG -vcf test.bcf.gz
-md5sum -c checksum.md5 || exit1
+PRG=../distangsd
+echo "--------------------"
+echo "Using PRG: '${PRG}'"
+echo "--------------------"
+#JC model
+echo "Switch to JC model"
+#VCF
+echo "Testing VCF/BCF Input disAngsd-geno"
+echo "Binary output"
+$PRG -vcf test.bcf.gz;
+md5sum -c JC/vcfb.md5 || exit 1;
+echo "Text output"
+$PRG -vcf test.bcf.gz -outbin 0;
+md5sum -c JC/vcfnb.md5 || exit 1;
+echo "Binary output + threading"
+$PRG -vcf test.bcf.gz -isthreading 1;
+md5sum -c JC/vcfbth.md5 || exit 1;
+echo "Text output + threading"
+$PRG -vcf test.bcf.gz -outbin 0 -isthreading 1;
+md5sum -c JC/vcfnbth.md5 || exit 1;
+
+#GLF
+echo "Testing Genotype likelihood Input disAngsd-geno"
+echo "Binary input binary output"
+$PRG -inglf test_bin;
+md5sum -c JC/glfbb.md5 || exit 1;
+echo "Binary input text output"
+$PRG -inglf test_bin -outbin 0;
+md5sum -c JC/glfbnb.md5 || exit 1;
+echo "Text input binary output"
+$PRG -inglf test_nbin.txt.gz -inbin 0;
+md5sum -c JC/glfnbb.md5 || exit 1;
+echo "Text input text output"
+$PRG -inglf test_nbin.txt.gz -inbin 0 -outbin 0;
+md5sum -c JC/glfnbnb.md5 || exit 1;
+echo "Binary input binary output + threading"
+$PRG -inglf test_bin -isthreading 1;
+md5sum -c JC/glfbbth.md5 || exit 1;
+echo "Binary input text output + threading"
+$PRG -inglf test_bin -outbin 0 -isthreading 1;
+md5sum -c JC/glfbnbth.md5 || exit 1;
+echo "Text input binary output + threading"
+$PRG -inglf test_nbin.txt.gz -inbin 0 -isthreading 1;
+md5sum -c JC/glfnbbth.md5 || exit 1;
+echo "Text input text output + threading"
+$PRG -inglf test_nbin.txt.gz -inbin 0 -outbin 0 -isthreading 1;
+md5sum -c JC/glfnbnbth.md5 || exit 1;
+
+#MPILEUP
+echo "Testing mpileup Input disAngsd-nuc"
+echo "Binary output"
+$PRG -method nuc -mpileup test.txt.gz;
+md5sum -c JC/mpileupb.md5 || exit 1;
+echo "Text output"
+$PRG -method nuc -mpileup test.txt.gz -outbin 0;
+md5sum -c JC/mpileupnb.md5 || exit 1;
+echo "Binary output + threading"
+$PRG -method nuc -mpileup test.txt.gz -isthreading 1;
+md5sum -c JC/mpileupbth.md5 || exit 1;
+echo "Text output + threading"
+$PRG -method nuc -mpileup test.txt.gz -outbin 0 -isthreading 1;
+md5sum -c JC/mpileupnbth.md5 || exit 1;
+
+#GTR model
+echo "Switch to GTR model"
+#VCF
+echo "Testing VCF/BCF Input disAngsd-geno"
+echo "Binary output"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946;
+md5sum -c GTR/vcfb.md5 || exit 1;
+echo "Text output"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0;
+md5sum -c GTR/vcfnb.md5 || exit 1;
+echo "Binary output + threading"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -isthreading 1;
+md5sum -c GTR/vcfbth.md5 || exit 1;
+echo "Text output + threading"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0 -isthreading 1;
+md5sum -c GTR/vcfnbth.md5 || exit 1;
+
+#GLF
+echo "Testing Genotype likelihood Input disAngsd-geno"
+echo "Binary input binary output"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946;
+md5sum -c GTR/glfbb.md5 || exit 1;
+echo "Binary input text output"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0;
+md5sum -c GTR/glfbnb.md5 || exit 1;
+echo "Text input binary output"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946;
+md5sum -c GTR/glfnbb.md5 || exit 1;
+echo "Text input text output"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0;
+md5sum -c GTR/glfnbnb.md5 || exit 1;
+echo "Binary input binary output + threading"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -isthreading 1;
+md5sum -c GTR/glfbbth.md5 || exit 1;
+echo "Binary input text output + threading"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0 -isthreading 1;
+md5sum -c GTR/glfbnbth.md5 || exit 1;
+echo "Text input binary output + threading"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -isthreading 1;
+md5sum -c GTR/glfnbbth.md5 || exit 1;
+echo "Text input text output + threading"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0 -isthreading 1;
+md5sum -c GTR/glfnbnbth.md5 || exit 1;
+
+#MPILEUP
+echo "Testing mpileup Input disAngsd-nuc"
+echo "Binary output"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946;
+md5sum -c GTR/mpileupb.md5 || exit 1;
+echo "Text output"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0;
+md5sum -c GTR/mpileupnb.md5 || exit 1;
+echo "Binary output + threading"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -isthreading 1;
+md5sum -c GTR/mpileupbth.md5 || exit 1;
+echo "Text output + threading"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -outbin 0 -isthreading 1;
+md5sum -c GTR/mpileupnbth.md5 || exit 1;
+
+#GTR+I model
+echo "Switch to GTR+I model"
+#VCF
+echo "Testing VCF/BCF Input disAngsd-geno"
+echo "Binary output"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1;
+md5sum -c GTR2D/vcfb.md5 || exit 1;
+echo "Text output"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0;
+md5sum -c GTR2D/vcfnb.md5 || exit 1;
+echo "Binary output + threading"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -isthreading 1;
+md5sum -c GTR2D/vcfbth.md5 || exit 1;
+echo "Text output + threading"
+$PRG -model GTR -vcf test.bcf.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0 -isthreading 1;
+md5sum -c GTR2D/vcfnbth.md5 || exit 1;
+
+#GLF
+echo "Testing Genotype likelihood Input disAngsd-geno"
+echo "Binary input binary output"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1;
+md5sum -c GTR2D/glfbb.md5 || exit 1;
+echo "Binary input text output"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0;
+md5sum -c GTR2D/glfbnb.md5 || exit 1;
+echo "Text input binary output"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1;
+md5sum -c GTR2D/glfnbb.md5 || exit 1;
+echo "Text input text output"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0;
+md5sum -c GTR2D/glfnbnb.md5 || exit 1;
+echo "Binary input binary output + threading"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -isthreading 1;
+md5sum -c GTR2D/glfbbth.md5 || exit 1;
+echo "Binary input text output + threading"
+$PRG -model GTR -inglf test_bin -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0 -isthreading 1;
+md5sum -c GTR2D/glfbnbth.md5 || exit 1;
+echo "Text input binary output + threading"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -isthreading 1;
+md5sum -c GTR2D/glfnbbth.md5 || exit 1;
+echo "Text input text output + threading"
+$PRG -model GTR -inglf test_nbin.txt.gz -inbin 0 -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0 -isthreading 1;
+md5sum -c GTR2D/glfnbnbth.md5 || exit 1;
+
+#MPILEUP
+echo "Testing mpileup Input disAngsd-nuc"
+echo "Binary output"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1;
+md5sum -c GTR2D/mpileupb.md5 || exit 1;
+echo "Text output"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0;
+md5sum -c GTR2D/mpileupnb.md5 || exit 1;
+echo "Binary output + threading"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -isthreading 1;
+md5sum -c GTR2D/mpileupbth.md5 || exit 1;
+echo "Text output + threading"
+$PRG -method nuc -model GTR -mpileup test.txt.gz -par 2.0431,0.0821,0,0.067,0,0.2184,0.2606,0.3265,0.1946 -is2Dinfer 1 -outbin 0 -isthreading 1;
+md5sum -c GTR2D/mpileupnbth.md5 || exit 1;
 #PRG=""
 #BAMDIR=""
 #
