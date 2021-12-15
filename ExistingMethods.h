@@ -7,18 +7,6 @@
 
 #ifndef NewMethods_hpp
 #define NewMethods_hpp
-#include <iostream>
-#include <cmath>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Eigenvalues>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <unistd.h>
-#include <chrono>
 #include "GLtest.h"
 
 //Inference: total likelihood based on the inferred joint genotype distribution + _Ambiguity
