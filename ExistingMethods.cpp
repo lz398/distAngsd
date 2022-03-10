@@ -57,9 +57,9 @@ double estimateT_Ambiguity(double twoDSFS[10][10], double *t, double parameters[
     return MLV;
 }
 
-/* Consensus Genotype*/
+/* Ambiguity Genotype*/
 //Inference: Main EM algorithm for joint genotype distribution
-void estimate2DSFS_consensusGT(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_numsites, int numsites)
+void estimate2DSFS_AmbiguityGT(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_numsites, int numsites)
 {
     double ESFS2[10][10], ptemp, d;
     for (int i=0; i<10; i++){
@@ -98,17 +98,17 @@ void estimate2DSFS_consensusGT(double twoDSFS[10][10], double **GLDATA, int *SDA
                     compare_t2 = compare_t2 + 1;
                 }
             }
-//            std::cout<<"individual 1:\n";
-//            for (int i=1;i<10;i++){
-//                std::cout<<GLDATA[s][i]<<"\t";
-//            }
-//
-//            std::cout<<"individual 2:\n";
-//            for (int i=1;i<10;i++){
-//                std::cout<<GLDATA[s][10+i]<<"\t";
-//            }
-//            std::cout<<"\n";
-//            std::cout << s <<" "<< con_gt1 <<" "<<con_gt2<<"\n";
+            //            std::cout<<"individual 1:\n";
+            //            for (int i=1;i<10;i++){
+            //                std::cout<<GLDATA[s][i]<<"\t";
+            //            }
+            //
+            //            std::cout<<"individual 2:\n";
+            //            for (int i=1;i<10;i++){
+            //                std::cout<<GLDATA[s][10+i]<<"\t";
+            //            }
+            //            std::cout<<"\n";
+            //            std::cout << s <<" "<< con_gt1 <<" "<<con_gt2<<"\n";
             twoDSFS[con_gt1][con_gt2] = twoDSFS[con_gt1][con_gt2] + 1;
             sum = sum + 1;
         }
@@ -121,6 +121,66 @@ void estimate2DSFS_consensusGT(double twoDSFS[10][10], double **GLDATA, int *SDA
 }
 
 
+/* No Ambiguity Genotype*/
+//Inference: Main EM algorithm for joint genotype distribution
+void estimate2DSFS_NoAmbiguityGT(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_numsites, int numsites)
+{
+    double ESFS2[10][10], ptemp, d;
+    for (int i=0; i<10; i++){
+        for (int j=0; j<10; j++){
+            twoDSFS[i][j]=0.00;
+        }
+    }
+    int sum = 0;
+    for (int s=0; s<numsites; s++){
+        if (SDATA[s]>0){
+            int con_gt1 = 0;
+            int con_gt2 = 0;
+            int compare_t1 = 0;
+            int compare_t2 = 0;
+            for (int i=1;i<10;i++){
+                if (GLDATA[s][con_gt1]<GLDATA[s][i]){
+                    con_gt1 = i;
+                    compare_t1 = 0;
+                }else if(GLDATA[s][con_gt1]==GLDATA[s][i]){
+                    double criti_frac1 = (double)1-(double)1/(double)(compare_t1+2);
+                    double u1 = uniform();
+                    if (u1 > criti_frac1){
+                        con_gt1 = i;
+                    }
+                    compare_t1 = compare_t1 + 1;
+                }
+                if (GLDATA[s][10+con_gt2]<GLDATA[s][10+i]){
+                    con_gt2 = i;
+                    compare_t2 = 0;
+                }else if(GLDATA[s][10+con_gt2]==GLDATA[s][10+i]){
+                    double criti_frac2 = (double)1-(double)1/(double)(compare_t2+2);
+                    double u2 = uniform();
+                    if (u2 > criti_frac2){
+                        con_gt2 = i;
+                    }
+                    compare_t2 = compare_t2 + 1;
+                }
+            }
+            int g1[2], g2[2];
+            findgenotypes_from_index(con_gt1, g1);
+            findgenotypes_from_index(con_gt2, g2);
+            if ((g1[0] == g1[1]) && (g2[0] == g2[1])){
+                twoDSFS[con_gt1][con_gt2] = twoDSFS[con_gt1][con_gt2] + 1;
+                sum = sum + 1;
+            }
+            
+        }
+    }
+    for (int i=0; i<10; i++){
+        for (int j=0; j<10; j++){
+            twoDSFS[i][j]=twoDSFS[i][j]/(double)sum;
+        }
+    }
+}
+
+
+
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution + _Ambiguity*/
 double testtwoDSFS_Ambiguity(double RD, int numsites, double tdiv, double t1, double t2, double errorrate)
 {
@@ -130,7 +190,7 @@ double testtwoDSFS_Ambiguity(double RD, int numsites, double tdiv, double t1, do
     //initialize and set simulation parameters
     GLDATA = (double **) malloc(numsites * sizeof(double *));
     for (int i = 0; i < numsites; i++)
-    GLDATA[i] =(double *) malloc(20 * sizeof(double));
+        GLDATA[i] =(double *) malloc(20 * sizeof(double));
     
     SDATA = (int *) malloc(numsites * sizeof(int));
     
@@ -138,14 +198,14 @@ double testtwoDSFS_Ambiguity(double RD, int numsites, double tdiv, double t1, do
     SetSeed(rand()%30000+1);
     
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
-//    pi(0)=0.25;
-//    pi(1)=0.25;
-//    pi(2)=0.25;
-//    pi(3)=0.25;
-//    for (int i=0; i<5; i++)
-//    parameters[i]=1.0 /*+ (double)i*/;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
+    //    pi(0)=0.25;
+    //    pi(1)=0.25;
+    //    pi(2)=0.25;
+    //    pi(3)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0 /*+ (double)i*/;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
     pi(0)=0.2184;
     pi(1)=0.2606;
     pi(2)=0.3265;
@@ -156,7 +216,7 @@ double testtwoDSFS_Ambiguity(double RD, int numsites, double tdiv, double t1, do
     parameters[3]=0.0670;
     parameters[4]=0.0000;
     for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+        parameters[i]=pi(i-5);
     
     //simulate data
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
@@ -178,7 +238,7 @@ double testtwoDSFS_Ambiguity(double RD, int numsites, double tdiv, double t1, do
     std::cout<<"Estimated t = "<<t<<"\n";
     
     for (int i = 0; i < numsites; i++)
-    free(GLDATA[i]);
+        free(GLDATA[i]);
     free(GLDATA);
     return t;
 }
@@ -248,7 +308,7 @@ double testtwoDSFS_Ambiguity_v2(double RD, int numsites, double tdiv, double t1,
     //initialize and set simulation parameters
     GLDATA = (double **) malloc(numsites * sizeof(double *));
     for (int i = 0; i < numsites; i++)
-    GLDATA[i] =(double *) malloc(20 * sizeof(double));
+        GLDATA[i] =(double *) malloc(20 * sizeof(double));
     
     SDATA = (int *) malloc(numsites * sizeof(int));
     
@@ -256,14 +316,14 @@ double testtwoDSFS_Ambiguity_v2(double RD, int numsites, double tdiv, double t1,
     SetSeed(rand()%30000+1);
     
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
-//    pi(0)=0.25;
-//    pi(1)=0.25;
-//    pi(2)=0.25;
-//    pi(3)=0.25;
-//    for (int i=0; i<5; i++)
-//    parameters[i]=1.0 /*+ (double)i*/;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
+    //    pi(0)=0.25;
+    //    pi(1)=0.25;
+    //    pi(2)=0.25;
+    //    pi(3)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0 /*+ (double)i*/;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
     pi(0)=0.2184;
     pi(1)=0.2606;
     pi(2)=0.3265;
@@ -274,7 +334,7 @@ double testtwoDSFS_Ambiguity_v2(double RD, int numsites, double tdiv, double t1,
     parameters[3]=0.0670;
     parameters[4]=0.0000;
     for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+        parameters[i]=pi(i-5);
     
     //simulate data
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
@@ -298,7 +358,7 @@ double testtwoDSFS_Ambiguity_v2(double RD, int numsites, double tdiv, double t1,
     
     
     for (int i = 0; i < numsites; i++)
-    free(GLDATA[i]);
+        free(GLDATA[i]);
     free(GLDATA);
     return t;
 }
@@ -361,7 +421,7 @@ double testtwoDSFS_ngsDist(double RD, int numsites, double tdiv, double t1, doub
     //initialize and set simulation parameters
     GLDATA = (double **) malloc(numsites * sizeof(double *));
     for (int i = 0; i < numsites; i++)
-    GLDATA[i] =(double *) malloc(20 * sizeof(double));
+        GLDATA[i] =(double *) malloc(20 * sizeof(double));
     
     SDATA = (int *) malloc(numsites * sizeof(int));
     
@@ -369,14 +429,14 @@ double testtwoDSFS_ngsDist(double RD, int numsites, double tdiv, double t1, doub
     SetSeed(rand()%30000+1);
     
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
-//    pi(0)=0.25;
-//    pi(1)=0.25;
-//    pi(2)=0.25;
-//    pi(3)=0.25;
-//    for (int i=0; i<5; i++)
-//    parameters[i]=1.0 /*+ (double)i*/;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
+    //    pi(0)=0.25;
+    //    pi(1)=0.25;
+    //    pi(2)=0.25;
+    //    pi(3)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0 /*+ (double)i*/;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
     pi(0)=0.2184;
     pi(1)=0.2606;
     pi(2)=0.3265;
@@ -387,7 +447,7 @@ double testtwoDSFS_ngsDist(double RD, int numsites, double tdiv, double t1, doub
     parameters[3]=0.0670;
     parameters[4]=0.0000;
     for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+        parameters[i]=pi(i-5);
     
     //simulate data
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
@@ -405,17 +465,17 @@ double testtwoDSFS_ngsDist(double RD, int numsites, double tdiv, double t1, doub
     //Estimate 2DSFS in 10x10 matrix
     estimate2DSFS_EM(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
     
-//    for (int i=0; i<10; i++){
-//        for (int j=0; j<10; j++){
-//            std::cout << twoDSFS[i][j] <<"\t";
-//        }
-//        std::cout << "\n";
-//    }
+    //    for (int i=0; i<10; i++){
+    //        for (int j=0; j<10; j++){
+    //            std::cout << twoDSFS[i][j] <<"\t";
+    //        }
+    //        std::cout << "\n";
+    //    }
     
     //    //Estimate T
     //    estimateT_Ambiguity_v2(twoDSFS, &t, parameters);
     //    std::cout<<"Estimated t = "<<t<<"\n";
-//    gen_dist(twoDSFS);
+    //    gen_dist(twoDSFS);
     gen_dist(twoDSFS, GLDATA, SDATA, eff_numsites, numsites, dist, dist_JC, dist1, dist1_JC);
     std::cout << "2DSFS ngsDist result is "<<dist<<"\n";
     double t_dist = (t1+t2)/2/(1-dist);
@@ -426,7 +486,7 @@ double testtwoDSFS_ngsDist(double RD, int numsites, double tdiv, double t1, doub
     std::cout << "NgsDist inferred divergence time t is "<<t_dist1<<"\n";
     std::cout << "NgsDist JC result is "<<dist1_JC<<"\n";
     for (int i = 0; i < numsites; i++)
-    free(GLDATA[i]);
+        free(GLDATA[i]);
     free(GLDATA);
     return t;
 }
@@ -462,17 +522,17 @@ void gen_dist_snp(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_n
             dist += score[i][j]*twoDSFS[i][j];
         }
     }
-//    for (int i=0;i<9;i++){
-//        for (int j=0;j<9;j++){
-//            std::cout<<score[i][j]<<"\t";
-//        }
-//        std::cout<<"\n";
-//    }
-//    std::cout<<pcsum<<"hahaha\n";
-//    std::cout<<dist<<"hahaha\n";
+    //    for (int i=0;i<9;i++){
+    //        for (int j=0;j<9;j++){
+    //            std::cout<<score[i][j]<<"\t";
+    //        }
+    //        std::cout<<"\n";
+    //    }
+    //    std::cout<<pcsum<<"hahaha\n";
+    //    std::cout<<dist<<"hahaha\n";
     dist = dist/pcsum;
     dist_JC = -log(1 - (dist * 4/3)) * 3/4;
-//    dist = -log(1-dist);
+    //    dist = -log(1-dist);
     dist1 = 0;
     double eff_num = 0;
     double dist2;
@@ -501,7 +561,7 @@ void gen_dist_snp(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_n
     }
     dist1 = dist1/eff_num;
     dist1_JC = -log(1 - (dist1 * 4/3)) * 3/4;
-//    dist1 = -log(1-dist1);
+    //    dist1 = -log(1-dist1);
 }
 
 double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, double t2, double errorrate)
@@ -512,7 +572,7 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
     //initialize and set simulation parameters
     GLDATA = (double **) malloc(numsites * sizeof(double *));
     for (int i = 0; i < numsites; i++)
-    GLDATA[i] =(double *) malloc(20 * sizeof(double));
+        GLDATA[i] =(double *) malloc(20 * sizeof(double));
     
     SDATA = (int *) malloc(numsites * sizeof(int));
     
@@ -520,14 +580,14 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
     SetSeed(rand()%30000+1);
     
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
-//    pi(0)=0.25;
-//    pi(1)=0.25;
-//    pi(2)=0.25;
-//    pi(3)=0.25;
-//    for (int i=0; i<5; i++)
-//    parameters[i]=1.0 /*+ (double)i*/;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
+    //    pi(0)=0.25;
+    //    pi(1)=0.25;
+    //    pi(2)=0.25;
+    //    pi(3)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0 /*+ (double)i*/;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
     pi(0)=0.2184;
     pi(1)=0.2606;
     pi(2)=0.3265;
@@ -538,7 +598,7 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
     parameters[3]=0.0670;
     parameters[4]=0.0000;
     for (int i=5;i<8; i++)
-    parameters[i]=pi(i-5);
+        parameters[i]=pi(i-5);
     
     //simulate data
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
@@ -556,17 +616,17 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
     //Estimate 2DSFS in 10x10 matrix
     estimate2DSFS_EM(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
     
-//    for (int i=0; i<10; i++){
-//        for (int j=0; j<10; j++){
-//            std::cout << twoDSFS[i][j] <<"\t";
-//        }
-//        std::cout << "\n";
-//    }
+    //    for (int i=0; i<10; i++){
+    //        for (int j=0; j<10; j++){
+    //            std::cout << twoDSFS[i][j] <<"\t";
+    //        }
+    //        std::cout << "\n";
+    //    }
     
     //    //Estimate T
     //    estimateT_Ambiguity_v2(twoDSFS, &t, parameters);
     //    std::cout<<"Estimated t = "<<t<<"\n";
-//    gen_dist(twoDSFS);
+    //    gen_dist(twoDSFS);
     gen_dist_snp(twoDSFS, GLDATA, SDATA, eff_numsites, numsites, dist, dist_JC, dist1, dist1_JC);
     std::cout << "2DSFS ngsDist result is "<<dist<<"\n";
     double t_dist = (t1+t2)/2/(1-dist);
@@ -577,7 +637,7 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
     std::cout << "NgsDist inferred divergence time t is "<<t_dist1<<"\n";
     std::cout << "NgsDist JC result is "<<dist1_JC<<"\n";
     for (int i = 0; i < numsites; i++)
-    free(GLDATA[i]);
+        free(GLDATA[i]);
     free(GLDATA);
     return t;
 }
@@ -593,7 +653,7 @@ void simSEQs_reads_consensus(double **SEQDATA, int genotypes[2], int site, int s
         SEQDATA[site][4*species+k] = 0;
     }
     for(int i=0;i<ReadDepth;i++){
-            out = simSEQs_per_read_v1(SEQDATA, genotypes, site, species, e,0);
+        out = simSEQs_per_read_v1(SEQDATA, genotypes, site, species, e,0);
         //        double e1 = -e*log(1-uniform());
         //        if (e1 > 0.5) {e1=0.5;}
         //        if (i!=j){
@@ -621,22 +681,22 @@ void simSEQs_reads_consensus(double **SEQDATA, int genotypes[2], int site, int s
         }
         SEQDATA[site][4*species+con_out] = 1;
     }
-//    double a = log(1.0-e);
-//    double b = log(e)-log(3.0);
-//    for(int k=0;k<4;k++){
-//        if (k == con_out){
-//            SEQDATA[site][4*species+k] = SEQDATA[site][4*species+k] + a;
-//        }else{
-//            SEQDATA[site][4*species+k] = SEQDATA[site][4*species+k] + b;
-//        }
-//    }
-//
-//    if (ReadDepth>0){
-//        for(int k=0;k<4;k++){
-//            SEQDATA[site][4*species+k] = exp(SEQDATA[site][4*species+k]);
-//            //std::cout<<SEQDATA[site][4*species+k]<<"\t";
-//        }
-//    }
+    //    double a = log(1.0-e);
+    //    double b = log(e)-log(3.0);
+    //    for(int k=0;k<4;k++){
+    //        if (k == con_out){
+    //            SEQDATA[site][4*species+k] = SEQDATA[site][4*species+k] + a;
+    //        }else{
+    //            SEQDATA[site][4*species+k] = SEQDATA[site][4*species+k] + b;
+    //        }
+    //    }
+    //
+    //    if (ReadDepth>0){
+    //        for(int k=0;k<4;k++){
+    //            SEQDATA[site][4*species+k] = exp(SEQDATA[site][4*species+k]);
+    //            //std::cout<<SEQDATA[site][4*species+k]<<"\t";
+    //        }
+    //    }
     //std::cout<<"\n";
 }
 
@@ -682,7 +742,7 @@ void simulateGLsTwoSpeciesSEQ_random(double RD, int numsites, double errorrate, 
     /*first we allocate memory*/
     ancDATA = (int **) malloc(numsites*(sizeof(int *))); /*I allocate memory here.  If this function is called many times it may be better to move the memmory allocation out of this function*/
     for (int i=0; i<numsites; i++)
-    ancDATA[i]=(int *) malloc(2*(sizeof(int)));
+        ancDATA[i]=(int *) malloc(2*(sizeof(int)));
     
     /*then we simulate the two root ancestors for each species*/
     diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
@@ -729,7 +789,7 @@ void simulateGLsTwoSpeciesSEQ_random(double RD, int numsites, double errorrate, 
     }
     /*then we free memory*/
     for (int i=0; i<numsites; i++)
-    free(ancDATA[i]);
+        free(ancDATA[i]);
     free(ancDATA);
 }
 
@@ -743,7 +803,7 @@ void simulateGLsTwoSpeciesSEQ_consensus(double RD, int numsites, double errorrat
     /*first we allocate memory*/
     ancDATA = (int **) malloc(numsites*(sizeof(int *))); /*I allocate memory here.  If this function is called many times it may be better to move the memmory allocation out of this function*/
     for (int i=0; i<numsites; i++)
-    ancDATA[i]=(int *) malloc(2*(sizeof(int)));
+        ancDATA[i]=(int *) malloc(2*(sizeof(int)));
     
     /*then we simulate the two root ancestors for each species*/
     diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
@@ -790,7 +850,7 @@ void simulateGLsTwoSpeciesSEQ_consensus(double RD, int numsites, double errorrat
     }
     /*then we free memory*/
     for (int i=0; i<numsites; i++)
-    free(ancDATA[i]);
+        free(ancDATA[i]);
     free(ancDATA);
 }
 
@@ -801,23 +861,23 @@ double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, do
     
     //SetSeed(6);
     SetSeed(rand()%30000+1);
-//    for (int i=0; i<4; i++)
-//    pi(i)=0.25;
-//    for (int i=0; i<5; i++)
-//    parameters[i]=1.0;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
-//    pi(0)=0.2184;
-//    pi(1)=0.2606;
-//    pi(2)=0.3265;
-//    pi(3)=0.1946;
-//    parameters[0]=2.0431;
-//    parameters[1]=0.0821;
-//    parameters[2]=0.0000;
-//    parameters[3]=0.0670;
-//    parameters[4]=0.0000;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
+    //    for (int i=0; i<4; i++)
+    //    pi(i)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
+    //    pi(0)=0.2184;
+    //    pi(1)=0.2606;
+    //    pi(2)=0.3265;
+    //    pi(3)=0.1946;
+    //    parameters[0]=2.0431;
+    //    parameters[1]=0.0821;
+    //    parameters[2]=0.0000;
+    //    parameters[3]=0.0670;
+    //    parameters[4]=0.0000;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
     for (int i=5;i<9;i++){
         pi[i-5] = par[i];
     }
@@ -830,7 +890,7 @@ double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, do
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
     SEQDATA = (double **) malloc(numsites * sizeof(double *));
     for (int i = 0; i < numsites; i++)
-    SEQDATA[i] = (double *) malloc(8 * sizeof(double));
+        SEQDATA[i] = (double *) malloc(8 * sizeof(double));
     
     SEQ_SDATA = (int *) malloc(numsites * sizeof(int));
     
@@ -839,14 +899,14 @@ double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, do
     int eff_numsites = FilterSitesSEQ(SEQDATA, SEQ_SDATA, numsites);
     
     for (int i=0; i<8; i++)
-    GLOBpar[i]=parameters[i];
+        GLOBpar[i]=parameters[i];
     globnumsites=numsites;
     globerror=errorrate;
     MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ_v1, 0.000001, &t);
     std::cout<<"Estimated t = "<<t<<"\n";
     
     for (int i = 0; i < numsites; i++)
-    free(SEQDATA[i]);
+        free(SEQDATA[i]);
     free(SEQDATA);
     free(SEQ_SDATA);
     return t;
@@ -859,23 +919,23 @@ double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1,
     
     //SetSeed(6);
     SetSeed(rand()%30000+1);
-//    for (int i=0; i<4; i++)
-//    pi(i)=0.25;
-//    for (int i=0; i<5; i++)
-//    parameters[i]=1.0;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
-//    pi(0)=0.2184;
-//    pi(1)=0.2606;
-//    pi(2)=0.3265;
-//    pi(3)=0.1946;
-//    parameters[0]=2.0431;
-//    parameters[1]=0.0821;
-//    parameters[2]=0.0000;
-//    parameters[3]=0.0670;
-//    parameters[4]=0.0000;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
+    //    for (int i=0; i<4; i++)
+    //    pi(i)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
+    //    pi(0)=0.2184;
+    //    pi(1)=0.2606;
+    //    pi(2)=0.3265;
+    //    pi(3)=0.1946;
+    //    parameters[0]=2.0431;
+    //    parameters[1]=0.0821;
+    //    parameters[2]=0.0000;
+    //    parameters[3]=0.0670;
+    //    parameters[4]=0.0000;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
     for (int i=5;i<9;i++){
         pi[i-5] = par[i];
     }
@@ -887,7 +947,7 @@ double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1,
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
     SEQDATA = (double **) malloc(numsites * sizeof(double *));
     for (int i = 0; i < numsites; i++)
-    SEQDATA[i] = (double *) malloc(8 * sizeof(double));
+        SEQDATA[i] = (double *) malloc(8 * sizeof(double));
     
     SEQ_SDATA = (int *) malloc(numsites * sizeof(int));
     
@@ -896,21 +956,21 @@ double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1,
     int eff_numsites = FilterSitesSEQ(SEQDATA, SEQ_SDATA, numsites);
     
     for (int i=0; i<8; i++)
-    GLOBpar[i]=parameters[i];
+        GLOBpar[i]=parameters[i];
     globnumsites=numsites;
     globerror=errorrate;
     MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ_v1, 0.000001, &t);
     std::cout<<"Estimated t = "<<t<<"\n";
     
     for (int i = 0; i < numsites; i++)
-    free(SEQDATA[i]);
+        free(SEQDATA[i]);
     free(SEQDATA);
     free(SEQ_SDATA);
     return t;
 }
 
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
-double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9])
+double testtwoDSFS_AmbiguityGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9])
 {
     double **GLDATA, t, parameters[8], twoDSFS[10][10];
     int *SDATA;
@@ -918,7 +978,7 @@ double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, 
     //initialize and set simulation parameters
     GLDATA = (double **) malloc(numsites * sizeof(double *));
     for (int i = 0; i < numsites; i++)
-    GLDATA[i] =(double *) malloc(20 * sizeof(double));
+        GLDATA[i] =(double *) malloc(20 * sizeof(double));
     
     SDATA = (int *) malloc(numsites * sizeof(int));
     
@@ -926,25 +986,25 @@ double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, 
     SetSeed(rand()%30000+1);
     
     //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
-//    pi(0)=0.25;
-//    pi(1)=0.25;
-//    pi(2)=0.25;
-//    pi(3)=0.25;
-//    for (int i=0; i<5; i++)
-//    parameters[i]=1.0 /*+ (double)i*/;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
-//    pi(0)=0.2184;
-//    pi(1)=0.2606;
-//    pi(2)=0.3265;
-//    pi(3)=0.1946;
-//    parameters[0]=2.0431;
-//    parameters[1]=0.0821;
-//    parameters[2]=0.0000;
-//    parameters[3]=0.0670;
-//    parameters[4]=0.0000;
-//    for (int i=5;i<8; i++)
-//    parameters[i]=pi(i-5);
+    //    pi(0)=0.25;
+    //    pi(1)=0.25;
+    //    pi(2)=0.25;
+    //    pi(3)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0 /*+ (double)i*/;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
+    //    pi(0)=0.2184;
+    //    pi(1)=0.2606;
+    //    pi(2)=0.3265;
+    //    pi(3)=0.1946;
+    //    parameters[0]=2.0431;
+    //    parameters[1]=0.0821;
+    //    parameters[2]=0.0000;
+    //    parameters[3]=0.0670;
+    //    parameters[4]=0.0000;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
     for (int i=5;i<9;i++){
         pi[i-5] = par[i];
     }
@@ -967,7 +1027,7 @@ double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, 
     int eff_numsites = FilterSites(GLDATA, SDATA, numsites);
     
     //Estimate 2DSFS in 10x10 matrix
-    estimate2DSFS_consensusGT(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
+    estimate2DSFS_AmbiguityGT(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
     
     //Estimate T
     estimateT_Ambiguity(twoDSFS, &t, parameters);
@@ -976,7 +1036,81 @@ double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, 
     
     
     for (int i = 0; i < numsites; i++)
-    free(GLDATA[i]);
+        free(GLDATA[i]);
+    free(GLDATA);
+    
+    free(SDATA);
+    return t;
+}
+
+/*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
+double testtwoDSFS_NoAmbiguityGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9])
+{
+    double **GLDATA, t, parameters[8], twoDSFS[10][10];
+    int *SDATA;
+    
+    //initialize and set simulation parameters
+    GLDATA = (double **) malloc(numsites * sizeof(double *));
+    for (int i = 0; i < numsites; i++)
+        GLDATA[i] =(double *) malloc(20 * sizeof(double));
+    
+    SDATA = (int *) malloc(numsites * sizeof(int));
+    
+    //SetSeed(666);
+    SetSeed(rand()%30000+1);
+    
+    //printf("T=%.2lf, (t1=%.2lf, t2=%.2lf), e=%.2lf, numb.sites=%i: ",tdiv,t1,t2,errorrate, numsites);
+    //    pi(0)=0.25;
+    //    pi(1)=0.25;
+    //    pi(2)=0.25;
+    //    pi(3)=0.25;
+    //    for (int i=0; i<5; i++)
+    //    parameters[i]=1.0 /*+ (double)i*/;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
+    //    pi(0)=0.2184;
+    //    pi(1)=0.2606;
+    //    pi(2)=0.3265;
+    //    pi(3)=0.1946;
+    //    parameters[0]=2.0431;
+    //    parameters[1]=0.0821;
+    //    parameters[2]=0.0000;
+    //    parameters[3]=0.0670;
+    //    parameters[4]=0.0000;
+    //    for (int i=5;i<8; i++)
+    //    parameters[i]=pi(i-5);
+    for (int i=5;i<9;i++){
+        pi[i-5] = par[i];
+    }
+    for (int i=0;i<8;i++){
+        parameters[i] = par[i];
+    }
+    
+    //simulate data
+    simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
+    
+    //    for (int i = 0; i < numsites; i++){
+    //        for (int j = 0; j < 20; j++){
+    //            std::cout << GLDATA[i][j] << "\t";
+    //        }
+    //        std::cout << "\n";
+    //    }
+    //
+    
+    //Filter the effective numsites
+    int eff_numsites = FilterSites(GLDATA, SDATA, numsites);
+    
+    //Estimate 2DSFS in 10x10 matrix
+    estimate2DSFS_NoAmbiguityGT(twoDSFS, GLDATA, SDATA, eff_numsites, numsites);
+    
+    //Estimate T
+    estimateT_Ambiguity(twoDSFS, &t, parameters);
+    //estimateT(twoDSFS, &t, parameters);
+    std::cout<<"Estimated t = "<<t<<"\n";
+    
+    
+    for (int i = 0; i < numsites; i++)
+        free(GLDATA[i]);
     free(GLDATA);
     
     free(SDATA);

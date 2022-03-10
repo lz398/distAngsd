@@ -36,13 +36,16 @@ double testtwoDSFS_ngsDist_snp(double RD, int numsites, double tdiv, double t1, 
 
 void simSEQs_reads_consensus(double **SEQDATA, int genotypes[2], int site, int species, double e, double RD);
 void simSEQs_reads_random(double **SEQDATA, int genotypes[2], int site, int species, double e, double RD);
-void estimate2DSFS_consensusGT(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_numsites, int numsites);
+void estimate2DSFS_AmbiguityGT(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_numsites, int numsites);
+void estimate2DSFS_NoAmbiguityGT(double twoDSFS[10][10], double **GLDATA, int *SDATA, int eff_numsites, int numsites);
 void simulateGLsTwoSpeciesSEQ_random(double RD, int numsites, double errorrate, double tdiv, double t1, double t2, double **SEQDATA, double (*pijt)(double t, double *par, int from, int to), double *par);
 void simulateGLsTwoSpeciesSEQ_consensus(double RD, int numsites, double errorrate, double tdiv, double t1, double t2, double **SEQDATA, double (*pijt)(double t, double *par, int from, int to), double *par);
 // RandomSEQ
 double testsimSEQDATA_random(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9]);
 // ConsensusSEQ
 double testsimSEQDATA_consensus(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9]);
-// ConsensusGT
-double testtwoDSFS_consensusGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9]);
+// AmbiguityGT
+double testtwoDSFS_AmbiguityGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9]);
+// NoAmbiguityGT
+double testtwoDSFS_NoAmbiguityGT(double RD, int numsites, double tdiv, double t1, double t2, double errorrate, double par[9]);
 #endif /* NewMethods_hpp */

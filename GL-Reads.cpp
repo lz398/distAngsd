@@ -75,6 +75,7 @@ int main(int argc,char**argv){
             double RD = ptr->RD;
             int numsites = ptr->numsites;
             double errorrate = ptr->errorrate;
+            cout<<errorrate<<"Hello!\n";
             double tdiv = ptr->tdiv;
             double t1 = ptr->t1;
             double t2 = ptr->t2;
@@ -101,7 +102,7 @@ int main(int argc,char**argv){
                 kstr->l = 0;
             }
             if (is2Dinfer==1){
-//                if ((!strcasecmp(model,"GTR")) && (strcasecmp(method,"ConsensusGT"))){
+//                if ((!strcasecmp(model,"GTR")) && (strcasecmp(method,"AmbiguityGT"))){
                     for (int r=0; r<simrep; r++){
                         SeedSetup();
                         //string repstr = "Random seed is " + to_string(seed) + "\n";
@@ -118,8 +119,8 @@ int main(int argc,char**argv){
                             testsimSEQDATA_consensusWithInvSite(RD, numsites, p_inv, tdiv, t1, t2, errorrate, t, p, par);
                             //t=testsimSEQDATA_consensus(RD, numsites, tdiv, t1, t2, errorrate,par);
                         }
-                        //                    else if(!strcasecmp(method,"ConsensusGT")){
-                        //                        //t=testtwoDSFS_consensusGT(RD, numsites, tdiv, t1, t2, errorrate,par);
+                        //                    else if(!strcasecmp(method,"AmbiguityGT")){
+                        //                        //t=testtwoDSFS_AmbiguityGT(RD, numsites, tdiv, t1, t2, errorrate,par);
                         //                    }
                         //                repstr = repstr + "Estimated t = " + to_string(t) + "\n";
                         string repstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " + to_string(p) + ".\n";
@@ -137,7 +138,7 @@ int main(int argc,char**argv){
                         my_bgzf_write(fp,kstr->s,kstr->l);
                     }
 //                }else{
-//                    string repstr = "Symmetric models, such as JC, are proved to have multi-solutions in 2D inferences, please try GTR.\nConsensusGT is not suitable for 2D inferences, please try other methods.\n";
+//                    string repstr = "Symmetric models, such as JC, are proved to have multi-solutions in 2D inferences, please try GTR.\nAmbiguityGT is not suitable for 2D inferences, please try other methods.\n";
 //                    cout << repstr;
 //                    if(dobinary)
 //                        my_bgzf_write(fp,repstr.c_str(),repstr.size());
@@ -159,8 +160,10 @@ int main(int argc,char**argv){
                         t=testsimSEQDATA_random(RD, numsites, tdiv, t1, t2, errorrate,par);
                     }else if(!strcasecmp(method,"ConsensusSEQ")){
                         t=testsimSEQDATA_consensus(RD, numsites, tdiv, t1, t2, errorrate,par);
-                    }else if(!strcasecmp(method,"ConsensusGT")){
-                        t=testtwoDSFS_consensusGT(RD, numsites, tdiv, t1, t2, errorrate,par);
+                    }else if(!strcasecmp(method,"AmbiguityGT")){
+                        t=testtwoDSFS_AmbiguityGT(RD, numsites, tdiv, t1, t2, errorrate,par);
+                    }else if(!strcasecmp(method,"NoAmbiguityGT")){
+                        t=testtwoDSFS_NoAmbiguityGT(RD, numsites, tdiv, t1, t2, errorrate,par);
                     }
                     //                repstr = repstr + "Estimated t = " + to_string(t) + "\n";
                     string repstr = "Estimated t = " + to_string(t) + ".\n";

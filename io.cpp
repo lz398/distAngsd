@@ -25,7 +25,7 @@ pars *pars_init(){
     pars *p =(pars*) calloc(1,sizeof(pars));
     //filenames
     p->outname = strdup("distAngsdlog");
-    // method can be geno, nuc, RandomSEQ, ConsensusSEQ, ConsensusGT for simulation
+    // method can be geno, nuc, RandomSEQ, ConsensusSEQ, AmbiguityGT for simulation
     // method can only be geno for vcf
     p->method = strdup("geno");
     // model can be either JC or GTR
@@ -87,6 +87,7 @@ pars *get_pars(int argc,char **argv){
         else if(!strcasecmp("-mpileup",key)) p->mpileupname=strdup(val);
         else if(!strcasecmp("-simrep",key)) p->simrep=atoi(val);
         else if(!strcasecmp("-is2Dinfer",key)) p->is2Dinfer=atoi(val);
+        else if(!strcasecmp("-e",key)) p->errorrate=atof(val);
         else if(!strcasecmp("-numsites",key)) p->numsites=atoi(val);
         else if(!strcasecmp("-RD",key)) p->RD=atof(val);
         else if(!strcasecmp("-tdiv",key)) p->tdiv=atof(val);
@@ -144,8 +145,8 @@ pars *get_pars(int argc,char **argv){
         fprintf(stderr,"\t Currenly only distAngsd-geno is implemented for table glf data analyses!\n");
         free(p);
         return NULL;
-    }else if ((p->is2Dinfer==1) && ((strcasecmp(p->model,"GTR")) || (!strcasecmp(p->method,"ConsensusGT")))){
-        fprintf(stderr,"\t Symmetric models, such as JC, are proved to have multi-solutions in 2D inferences, please try GTR.\n \t ConsensusGT is not suitable for 2D inferences, please try other methods.\n");
+    }else if ((p->is2Dinfer==1) && ((strcasecmp(p->model,"GTR")) || (!strcasecmp(p->method,"AmbiguityGT")) || (!strcasecmp(p->method,"NoAmbiguityGT")))){
+        fprintf(stderr,"\t Symmetric models, such as JC, are proved to have multi-solutions in 2D inferences, please try GTR.\n \t AmbiguityGT or NoAmbiguity is not suitable for 2D inferences, please try other methods.\n");
         free(p);
         return NULL;
     }else if(!strcasecmp(p->model,"GTR")){

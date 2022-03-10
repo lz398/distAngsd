@@ -1,6 +1,6 @@
 # [![test](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml) distAngsd
 ## Descriptions
-<strong>distAngsd</strong> is a software to simulate and infer phylogenetic relationships between two individuals, in which two novel methods (i.e., geno and nuc) are proposed. A bunch of other methods are also implemented, e.g., RandomSEQ, ConsensusSEQ and ConsensusGT for comparisons. The software can both conduct simulation and analyses real vcf/bcf file given reliable genotype likelihoods are calculated.
+<strong>distAngsd</strong> is a software to simulate and infer phylogenetic relationships between two individuals, in which two novel methods (i.e., geno and nuc) are proposed. A bunch of other methods are also implemented, e.g., RandomSEQ, ConsensusSEQ, AmbiguityGT and NoAmbiguity for comparisons. The software can both conduct simulation and analyses real vcf/bcf file given reliable genotype likelihoods are calculated.
 
 The software can do 1-d simulation and inference (only genetic distance <em>t</em> estimation), 2-d simulation and inference (genetic distance <em>t</em> and invariable sites proportion <em>p_inv</em> joint estimation), vcf file read and inference, genotype likelihood table read and inference. Both JC69 are GTR models can be considered. Genotype likelihood and inference logs can be recored either in the format of txt.gz or bin.
 
@@ -45,7 +45,7 @@ One and only one of the following three options must be provided to specify whet
 
 * -RD is the average read depth for simulation. The default value is 1.0.
 
-* -errorrate is the base calling error for simulation. The default value is 0.002.
+* -e is the base calling error for simulation. The default value is 0.002.
 
 * -tdiv is the true divergence time (genetic distance) for simulation. The default value is 1.0.
 
