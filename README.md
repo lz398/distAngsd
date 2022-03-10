@@ -10,7 +10,7 @@ The code currently contains Makefile, io.cpp, bfgs.cpp, GLtest.cpp, GL2Dtest.cpp
 ### Compilation
 make distAngsd
 ### Run
-./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -errorrate -tdiv -t1 -t2 -par
+./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -e -tdiv -t1 -t2 -par
 
 One and only one of the following three options must be provided to specify whether to infer based on simulation or vcf file.
 * -vcf specifies the directory of input vcf files.
