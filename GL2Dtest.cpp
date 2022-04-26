@@ -392,6 +392,9 @@ double estimateTWithInvSiteParlike(double twoDSFS[10][10], double *t, double par
 }
 
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
+
+
+
 void testtwoDSFSWithInvSite(double RD, size_t numsites, double p_inv, double tdiv, double t1, double t2, double errorrate, double &t, double &p, double par[9], const char* glfname, int isthreading, int dobinary, int r)
 {
     double **GLDATA, parameters[8], twoDSFS[10][10];
@@ -416,6 +419,7 @@ void testtwoDSFSWithInvSite(double RD, size_t numsites, double p_inv, double tdi
  
     simulateGLsTwoSpeciesWithInvSite(RD, numsites, p_inv, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
     if (glfname!=NULL){
+      std::string to_string(int a);
         string str = glfname+to_string(r);
         gls_writer_double(str.c_str(), dobinary, numsites, GLDATA);
     }

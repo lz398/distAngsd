@@ -49,7 +49,7 @@ void op(vector<string> &src, const char* opc){
                 while (isdigit(src[i].at(j))!=0){
                     j = j+1;
                 }
-                src[i]=src[i].substr(j+stoi(src[i].substr(0,j)));
+                src[i]=src[i].substr(j+atoi(src[i].substr(0,j).c_str()));
             }
         }
     }

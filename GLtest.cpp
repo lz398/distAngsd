@@ -1401,8 +1401,10 @@ double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2
     //simulate data
     simulateGLsTwoSpecies(RD, numsites, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
     if (glfname!=NULL){
-        string str = glfname+to_string(r);
-        gls_writer_double(str.c_str(), dobinary, numsites, GLDATA);
+      char tmpbuf[1024];
+      snprintf(tmpbuf,1024,"%s%d",glfname,r);
+      //        string str = glfname+to_string(r);
+        gls_writer_double(tmpbuf, dobinary, numsites, GLDATA);
     }
     
     //    for (int i = 0; i < numsites; i++){

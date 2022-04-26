@@ -1,3 +1,4 @@
+#include <string>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Eigenvalues>
 #include<htslib/bgzf.h>
@@ -25,6 +26,19 @@ double **SEQDATA, **GLOBPsum;;
 int *SEQ_SDATA;
 int **DATA; /*the data is stored here*/
 int newt, newmat; /*these are control variables used to determine if the transition probability matrix needs to be recalculated*/
+
+
+std::string to_string(int a){
+  char buf[1024];
+  snprintf(buf,1024,"%d",a);
+  return std::string(buf);
+}
+
+std::string to_string(double d){
+  char buf[1024];
+  snprintf(buf,1024,"%f",d);
+  return std::string(buf);
+}
 
 
 int main(int argc,char**argv){
@@ -82,17 +96,23 @@ int main(int argc,char**argv){
             double p_inv = ptr->p_inv;
             double t = 0;
             double p = 0;
-            string str1 = "Model\tMethod\tReplication\tError\ttdiv\tt1\tt2";
-            string strmodel(model);
-            string strmethod(method);
-            string str2 = strmodel+"\t"+strmethod+"\t"+to_string(simrep)+"\t"+to_string(errorrate)+"\t"+to_string(tdiv)+"\t"+to_string(t1)+"\t"+to_string(t2);
+            char str1[4096] = "Model\tMethod\tReplication\tError\ttdiv\tt1\tt2";
+	    //            string str2 = strmodel+"\t"+strmethod+"\t"+to_string(simrep)+"\t"+to_string(errorrate)+"\t"+to_string(tdiv)+"\t"+to_string(t1)+"\t"+to_string(t2);
+
+	    char str2[4096];
+	    snprintf(str2,4096,"%s\t%s\t%d\t%f\t%f\t%f\t%f",model,method,simrep,errorrate,tdiv,t1,t2);
             if (is2Dinfer==1){
-                str1 = str1 + "\tis2Dinfer" + "\tp_inv";
-                str2 = str2 + "\t" + to_string(is2Dinfer) + "\t" + to_string(p_inv);
+	      //                str1 = str1 + "\tis2Dinfer" + "\tp_inv";
+	      //                str2 = str2 + "\t" + to_string(is2Dinfer) + "\t" + to_string(p_inv);
+		snprintf(str1,4096,"%s\tis2Dinfer\tp_inv",str1);
+		snprintf(str2,4096,"%s\t%d\t%f",str2,is2Dinfer,p_inv);
             }
-            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
-            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
-            string str = str1+"\n"+str2+"\n";
+	    //            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
+	    //            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
+	    snprintf(str1,4096,"%s\tThreading\tOut_uchar\tOut_binary",str1);
+	    snprintf(str2,4096,"%s\t%d\t0\t%d",str2,isthreading,dobinary);
+	    
+            string str = std::string(str1)+"\n"+std::string(str2)+"\n";
             cout<<str;
             if(dobinary)
                 my_bgzf_write(fp,str.c_str(),str.size());
@@ -123,7 +143,7 @@ int main(int argc,char**argv){
                         //                        //t=testtwoDSFS_AmbiguityGT(RD, numsites, tdiv, t1, t2, errorrate,par);
                         //                    }
                         //                repstr = repstr + "Estimated t = " + to_string(t) + "\n";
-                        string repstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " + to_string(p) + ".\n";
+                        string repstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " +to_string(p) + ".\n";
                         if(dobinary)
                             my_bgzf_write(fp,repstr.c_str(),repstr.size());
                         else{

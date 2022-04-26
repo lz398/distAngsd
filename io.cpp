@@ -105,7 +105,7 @@ pars *get_pars(int argc,char **argv){
             while (ss.good() && k<=8){
                 string substr;
                 getline(ss, substr, ',');
-                p->par[k] = stod(substr);
+                p->par[k] = atof(substr.c_str());
                 if (k >= 5){
                     sumpi = sumpi+p->par[k];
                 }

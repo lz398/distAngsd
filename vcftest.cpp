@@ -1,8 +1,9 @@
 #include <iostream>
+#include <string>
 #include <vector>
 #include <htslib/vcf.h>
 
-#include <string>
+
 #include <pthread.h>
 
 
@@ -1770,13 +1771,13 @@ void gls_read(const char* tabname, double **GLDATA, int isuchar, int dobinary){
             j = 0;
             while (getline(iss,word,'\t')){
                 if (isuchar == 1) {
-                    if (stoi(word)<=PHREDMAX-1){
-                        GLDATA[i][j] = exp(pl2ln[stoi(word)]);
+		  if (atoi(word.c_str())<=PHREDMAX-1){
+		    GLDATA[i][j] = exp(pl2ln[atoi(word.c_str())]);
                     }else{
                         GLDATA[i][j] = 0;
                     }
                 }else{
-                    GLDATA[i][j] = stod(word);
+		  GLDATA[i][j] = atof(word.c_str());
                 }
                 j = j+1;
             }
