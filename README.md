@@ -9,7 +9,7 @@ The code currently contains Makefile, io.cpp, bfgs.cpp, GLtest.cpp, GL2Dtest.cpp
 
 ## Compilation and Run
 ### Compilation
-make distangsd
+make distAngsd
 ### Run
 ./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -e -tdiv -t1 -t2 -par
 
