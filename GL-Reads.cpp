@@ -28,13 +28,13 @@ int **DATA; /*the data is stored here*/
 int newt, newmat; /*these are control variables used to determine if the transition probability matrix needs to be recalculated*/
 
 
-std::string to_string(int a){
+std::string to_string_int(int a){
   char buf[1024];
   snprintf(buf,1024,"%d",a);
   return std::string(buf);
 }
 
-std::string to_string(double d){
+std::string to_string_float(double d){
   char buf[1024];
   snprintf(buf,1024,"%f",d);
   return std::string(buf);
@@ -143,7 +143,7 @@ int main(int argc,char**argv){
                         //                        //t=testtwoDSFS_AmbiguityGT(RD, numsites, tdiv, t1, t2, errorrate,par);
                         //                    }
                         //                repstr = repstr + "Estimated t = " + to_string(t) + "\n";
-                        string repstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " +to_string(p) + ".\n";
+                        string repstr = "Estimated t = " + to_string_float(t) + ".\t" + "Estimated p = " +to_string_float(p) + ".\n";
                         if(dobinary)
                             my_bgzf_write(fp,repstr.c_str(),repstr.size());
                         else{
@@ -186,7 +186,7 @@ int main(int argc,char**argv){
                         t=testtwoDSFS_NoAmbiguityGT(RD, numsites, tdiv, t1, t2, errorrate,par);
                     }
                     //                repstr = repstr + "Estimated t = " + to_string(t) + "\n";
-                    string repstr = "Estimated t = " + to_string(t) + ".\n";
+                    string repstr = "Estimated t = " + to_string_float(t) + ".\n";
                     if(dobinary)
                         my_bgzf_write(fp,repstr.c_str(),repstr.size());
                     else{
@@ -212,10 +212,10 @@ int main(int argc,char**argv){
             string str2 = strmodel+"\t"+strmethod+"\t"+strvcfname;
             if (is2Dinfer==1){
                 str1 = str1 + "\tis2Dinfer";
-                str2 = str2 + "\t" + to_string(is2Dinfer);
+                str2 = str2 + "\t" + to_string_int(is2Dinfer);
             }
             str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
-            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
+            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
@@ -235,10 +235,10 @@ int main(int argc,char**argv){
             string vcfstr;
             if (is2Dinfer == 1){
                 cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";
-                vcfstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " + to_string(p) + ".\n";
+                vcfstr = "Estimated t = " + to_string_float(t) + ".\t" + "Estimated p = " + to_string_float(p) + ".\n";
             }else{
                 cout<<"Estimated t = "<<t<<"\n";
-                vcfstr = "Estimated t = " + to_string(t) + ".\n";
+                vcfstr = "Estimated t = " + to_string_float(t) + ".\n";
             }
             if(dobinary)
                 my_bgzf_write(fp,vcfstr.c_str(),vcfstr.size());
@@ -256,10 +256,10 @@ int main(int argc,char**argv){
             string str2 = strmodel+"\t"+strmethod+"\t"+strmpileupname;
             if (is2Dinfer==1){
                 str1 = str1 + "\tis2Dinfer";
-                str2 = str2 + "\t" + to_string(is2Dinfer);
+                str2 = str2 + "\t" + to_string_int(is2Dinfer);
             }
             str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
-            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
+            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
@@ -282,10 +282,10 @@ int main(int argc,char**argv){
             string mpileupstr;
             if (is2Dinfer == 1){
                 cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";
-                mpileupstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " + to_string(p) + ".\n";
+                mpileupstr = "Estimated t = " + to_string_float(t) + ".\t" + "Estimated p = " + to_string_float(p) + ".\n";
             }else{
                 cout<<"Estimated t = "<<t<<"\n";
-                mpileupstr = "Estimated t = " + to_string(t) + ".\n";
+                mpileupstr = "Estimated t = " + to_string_float(t) + ".\n";
             }
             if(dobinary)
                 my_bgzf_write(fp,mpileupstr.c_str(),mpileupstr.size());
@@ -305,13 +305,13 @@ int main(int argc,char**argv){
             string strmethod(method);
             string strtabname(tabname);
             string str1 = "Model\tMethod\tInGLTab\tIn_uchar\tIn_binary";
-            string str2 = strmodel+"\t"+strmethod+"\t"+strtabname+"\t"+to_string(tabuchar)+"\t"+to_string(tabbinary);
+            string str2 = strmodel+"\t"+strmethod+"\t"+strtabname+"\t"+to_string_int(tabuchar)+"\t"+to_string_int(tabbinary);
             if (is2Dinfer==1){
                 str1 = str1 + "\tis2Dinfer";
-                str2 = str2 + "\t" + to_string(is2Dinfer);
+                str2 = str2 + "\t" + to_string_int(is2Dinfer);
             }
             str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
-            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
+            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
@@ -326,10 +326,10 @@ int main(int argc,char**argv){
             string vcfstr;
             if (is2Dinfer == 1){
                 cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";
-                vcfstr = "Estimated t = " + to_string(t) + ".\t" + "Estimated p = " + to_string(p) + ".\n";
+                vcfstr = "Estimated t = " + to_string_float(t) + ".\t" + "Estimated p = " + to_string_float(p) + ".\n";
             }else{
                 cout<<"Estimated t = "<<t<<"\n";
-                vcfstr = "Estimated t = " + to_string(t) + ".\n";
+                vcfstr = "Estimated t = " + to_string_float(t) + ".\n";
             }
             if(dobinary)
                 my_bgzf_write(fp,vcfstr.c_str(),vcfstr.size());

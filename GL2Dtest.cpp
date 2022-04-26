@@ -419,8 +419,8 @@ void testtwoDSFSWithInvSite(double RD, size_t numsites, double p_inv, double tdi
  
     simulateGLsTwoSpeciesWithInvSite(RD, numsites, p_inv, errorrate,  tdiv,  t1,  t2, GLDATA, pijtGTR, parameters);
     if (glfname!=NULL){
-      std::string to_string(int a);
-        string str = glfname+to_string(r);
+      std::string to_string_int(int a);
+        string str = glfname+to_string_int(r);
         gls_writer_double(str.c_str(), dobinary, numsites, GLDATA);
     }
     
