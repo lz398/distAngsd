@@ -9,7 +9,7 @@ The code currently contains Makefile, io.cpp, bfgs.cpp, GLtest.cpp, GL2Dtest.cpp
 
 ## Compilation and Run
 ### Compilation
-make distAngsd
+make distangsd
 ### Run
 ./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -e -tdiv -t1 -t2 -par
 
@@ -24,7 +24,9 @@ One and only one of the following three options must be provided to specify whet
 
 * -o specifies the recorded logs which contain command detail and inferred results for either simulation/real vcf files. The default value is <em>distAngsdlog</em>. Such log files will always be provided.
 
-* -method can be either JC or GTR. The default value is <em>JC</em>.
+* -method can be AmbiguityGT, NoAmbiguityGT, RandomSEQ, ConsensusSEQ, geno and nuc. The default value is <em>geno</em>.
+
+* -model can be either JC or GTR. The default value is <em>JC</em>.
 
 * -outglf specifies the directory of output genotype likelihoods files. If -outglf is not provided, genotype likelihoods files will not be saved. 
 
