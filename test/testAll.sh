@@ -3,7 +3,7 @@
 #make test BAMDIR=smallBam/
 
 
-PRG=../distangsd
+PRG=../distAngsd
 echo "--------------------"
 echo "Using PRG: '${PRG}'"
 echo "--------------------"
