@@ -89,7 +89,7 @@ int main(int argc,char**argv){
             double RD = ptr->RD;
             int numsites = ptr->numsites;
             double errorrate = ptr->errorrate;
-            cout<<errorrate<<"Hello!\n";
+            //cout<<errorrate<<"Hello!\n";
             double tdiv = ptr->tdiv;
             double t1 = ptr->t1;
             double t2 = ptr->t2;

@@ -1,5 +1,5 @@
 #modied from htslib makefile
-FLAGS=-ggdb 
+FLAGS=-ggdb -std=gnu99
 
 CFLAGS += $(FLAGS)
 
@@ -8,7 +8,7 @@ CSRC = $(wildcard *.c)
 CXXSRC = $(wildcard *.cpp)
 OBJ = $(CSRC:.c=.o) $(CXXSRC:.cpp=.o)
 
-all: distangsd
+all: distAngsd
 
 .PHONY: all clean test
 
@@ -36,8 +36,8 @@ ifdef HTSSRC
 	$(CXX) -c  $(CXXFLAGS)  -I$(HTS_INCDIR) $*.cpp
 	$(CXX) -MM $(CXXFLAGS)  -I$(HTS_INCDIR) $*.cpp >$*.d
 
-distangsd: $(OBJ)
-	$(CXX) $(FLAGS)  -o distangsd *.o $(HTS_LIBDIR) -lz -llzma -lbz2 -lpthread -lcurl -lgsl
+distAngsd: $(OBJ)
+	$(CXX) $(FLAGS)  -o distAngsd *.o $(HTS_LIBDIR) -lz -llzma -lbz2 -lpthread -lcurl -lgsl
 else
 %.o: %.c
 	$(CC) -c  $(CFLAGS)  $*.c
@@ -47,12 +47,12 @@ else
 	$(CXX) -c  $(CXXFLAGS)  $*.cpp
 	$(CXX) -MM $(CXXFLAGS)  $*.cpp >$*.d
 
-distangsd: $(OBJ)
-	$(CXX) $(FLAGS)  -o distangsd *.o -lz -llzma -lbz2 -lpthread -lcurl -lhts -lgsl
+distAngsd: $(OBJ)
+	$(CXX) $(FLAGS)  -o distAngsd *.o -lz -llzma -lbz2 -lpthread -lcurl -lhts -lgsl
 endif
 
 clean:
-	rm  -f distangsd *.o *.d
+	rm  -f distAngsd *.o *.d
 
 test:
 	echo "Only subset of analyses is being tested";
