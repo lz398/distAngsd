@@ -84,4 +84,4 @@ One and only one of the following three options must be provided to specify whet
     ./distAngsd -mpileup test.txt.gz -method nuc [Options];
     
 ## Cite
-* Lei Zhao, Rasmus Nielsen, and Thorfinn Sand Korneliussen, distAngsd: Novel and Fast Phylogeny Inference Methods that Allow for Uncertainties Introduced by Sequencing and Low Coverage. (In Review)
+* Lei Zhao, Rasmus Nielsen, Thorfinn Sand Korneliussen, distAngsd: Fast and accurate inference of genetic distances for Next Generation Sequencing data, Molecular Biology and Evolution, 2022;, msac119, https://doi.org/10.1093/molbev/msac119
