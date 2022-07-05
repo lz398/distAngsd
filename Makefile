@@ -26,7 +26,7 @@ endif
 
 ifdef EIGEN
 $(info EIGEN defined)
-EIGEN_INCDIR=$(realpath $(EIGEN)）
+EIGEN_INCDIR=$(realpath $(EIGEN))
 endif
 
 
