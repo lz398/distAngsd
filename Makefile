@@ -24,31 +24,61 @@ else
 $(info HTSSRC not defined, assuming systemwide installation -lhts)
 endif
 
+ifdef EIGEN
+$(info EIGEN defined)
+EIGEN_INCDIR=$(realpath $(EIGEN)）
+endif
+
 
 -include $(OBJ:.o=.d)
-
+ifdef EIGEN
 ifdef HTSSRC
 %.o: %.c
-	$(CC) -c  $(CFLAGS) -I$(HTS_INCDIR) $*.c
-	$(CC) -MM $(CFLAGS)  -I$(HTS_INCDIR) $*.c >$*.d
+	$(CC) -c  $(CFLAGS) -I$(HTS_INCDIR)	-I$(EIGEN_INCDIR)	$*.c
+	$(CC) -MM $(CFLAGS)  -I$(HTS_INCDIR)	-I$(EIGEN_INCDIR)	$*.c	>$*.d
 
 %.o: %.cpp
-	$(CXX) -c  $(CXXFLAGS)  -I$(HTS_INCDIR) $*.cpp
-	$(CXX) -MM $(CXXFLAGS)  -I$(HTS_INCDIR) $*.cpp >$*.d
+	$(CXX) -c  $(CXXFLAGS)  -I$(HTS_INCDIR)	-I$(EIGEN_INCDIR)	$*.cpp
+	$(CXX) -MM $(CXXFLAGS)  -I$(HTS_INCDIR)	-I$(EIGEN_INCDIR)	$*.cpp >$*.d
 
 distAngsd: $(OBJ)
 	$(CXX) $(FLAGS)  -o distAngsd *.o $(HTS_LIBDIR) -lz -llzma -lbz2 -lpthread -lcurl -lgsl
 else
 %.o: %.c
-	$(CC) -c  $(CFLAGS)  $*.c
-	$(CC) -MM $(CFLAGS)  $*.c >$*.d
+	$(CC) -c  $(CFLAGS) -I$(EIGEN_INCDIR) $*.c
+	$(CC) -MM $(CFLAGS) -I$(EIGEN_INCDIR) $*.c >$*.d
 
 %.o: %.cpp
-	$(CXX) -c  $(CXXFLAGS)  $*.cpp
-	$(CXX) -MM $(CXXFLAGS)  $*.cpp >$*.d
+	$(CXX) -c  $(CXXFLAGS)  -I$(EIGEN_INCDIR)	$*.cpp
+	$(CXX) -MM $(CXXFLAGS)	-I$(EIGEN_INCDIR)	$*.cpp >$*.d
 
 distAngsd: $(OBJ)
 	$(CXX) $(FLAGS)  -o distAngsd *.o -lz -llzma -lbz2 -lpthread -lcurl -lhts -lgsl
+endif
+else
+ifdef HTSSRC
+%.o: %.c
+	$(CC) -c  $(CFLAGS) -I$(HTS_INCDIR)	$*.c
+	$(CC) -MM $(CFLAGS)  -I$(HTS_INCDIR)	$*.c	>$*.d
+
+%.o: %.cpp
+	$(CXX) -c  $(CXXFLAGS)  -I$(HTS_INCDIR)	$*.cpp
+	$(CXX) -MM $(CXXFLAGS)  -I$(HTS_INCDIR)	$*.cpp >$*.d
+
+distAngsd: $(OBJ)
+	$(CXX) $(FLAGS)  -o distAngsd *.o $(HTS_LIBDIR) -lz -llzma -lbz2 -lpthread -lcurl -lgsl
+else
+%.o: %.c
+	$(CC) -c  $(CFLAGS) $*.c
+	$(CC) -MM $(CFLAGS) $*.c >$*.d
+
+%.o: %.cpp
+	$(CXX) -c  $(CXXFLAGS)  $*.cpp
+	$(CXX) -MM $(CXXFLAGS)	$*.cpp >$*.d
+
+distAngsd: $(OBJ)
+	$(CXX) $(FLAGS)  -o distAngsd *.o -lz -llzma -lbz2 -lpthread -lcurl -lhts -lgsl
+endif
 endif
 
 clean:
