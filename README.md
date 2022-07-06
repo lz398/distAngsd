@@ -10,6 +10,8 @@ The code currently contains Makefile, io.cpp, bfgs.cpp, GLtest.cpp, GL2Dtest.cpp
 ## Compilation and Run
 ### Compilation
 make distAngsd
+or
+make EIGEN=DIRECTORY_TO_YOUR_eigen3 HTSSRC=DIRECTORY_TO_YOUR_htslib.a distAngsd
 ### Run
 ./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -e -tdiv -t1 -t2 -par
 
