@@ -10,6 +10,10 @@ The code currently contains Makefile, io.cpp, bfgs.cpp, GLtest.cpp, GL2Dtest.cpp
 ## Compilation and Run
 ### Compilation
 make distAngsd
+
+or
+
+make EIGEN=DIRECTORY_TO_YOUR_eigen3 HTSSRC=DIRECTORY_TO_YOUR_htslib.a distAngsd
 ### Run
 ./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -isex -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -e -tdiv -t1 -t2 -par
 
@@ -84,4 +88,4 @@ One and only one of the following three options must be provided to specify whet
     ./distAngsd -mpileup test.txt.gz -method nuc [Options];
     
 ## Cite
-* Lei Zhao, Rasmus Nielsen, Thorfinn Sand Korneliussen, distAngsd: Fast and accurate inference of genetic distances for Next Generation Sequencing data, Molecular Biology and Evolution, 2022;, msac119, https://doi.org/10.1093/molbev/msac119
+<b>Zhao, Lei#<b>; Nielsen, Rasmus; Korneliussen, Thorfinn S ; <a href="https://doi.org/10.1093/molbev/msac119"> distAngsd: Fast and accurate inference of genetic distances for Next Generation Sequencing data </a>, Molecular Biology and Evolution, 2022, 39(6), msac119, <a href="https://github.com/lz398/distAngsd"> Software Link </a>
