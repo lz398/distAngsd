@@ -13,6 +13,8 @@ jobs:
   
     steps:
     - uses: actions/checkout@v2
+    - name: clean
+      run: make clean
     - name: Install dependencies
       run: sudo apt-get update; sudo apt-get install libcurl4-openssl-dev; sudo apt install libeigen3-dev;
     - name: prepare htslib
