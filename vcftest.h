@@ -76,10 +76,10 @@ double estimate2DSFS_EM_threading_double(double twoDSFS[10][10], double **GLDATA
 
 //vcf inference
 //double vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field,char *seek, double par[9], int isthreading, int isuchar, int dobinary);
-void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, std::string vcf_format_field, std::string vcf_allele_field, char *seek, double par[9], int isthreading, int isuchar,int dobinary, int is2Dinfer, double &t, double &p);
+void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, std::string vcf_format_field, std::string vcf_allele_field, char *seek, double par[9], int isthreading, int isuchar,int dobinary, int is2Dinfer, int isex, double &t, double &p);
 
 int CheckTable(const char* tabname, size_t &numsites, size_t &cols);
 int CheckTablebin(const char* tabname, size_t &numsites, size_t &cols, size_t ind, int isuchar);
 void gls_read(const char* tabname, double **GLDATA, int isuchar, int dobinary);
-void tabletwoDSFS(const char* tabname, double par[9], int isthreading, int inuchar, int inbinary, int is2Dinfer, double &t, double &p);
+void tabletwoDSFS(const char* tabname, double par[9], int isthreading, int inuchar, int inbinary, int is2Dinfer, int isex, double &t, double &p);
 #endif /* vcftest_h */

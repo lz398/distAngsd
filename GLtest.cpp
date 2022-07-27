@@ -1264,6 +1264,109 @@ double likeGLwithtwoDSFS(double twoDSFS[10][10], double t, double par[8])
 }
 
 //Inference: total likelihood based on the inferred joint genotype distribution.
+double likeGLwithtwoDSFSEx(double twoDSFS[10][10], double t, double par[8])
+{
+    int g1[2], g2[2];
+    double like, totlike=0.0;
+    double like1;
+    //std::cout<<t<<"\n";
+    
+    diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
+    gettransitionprobmatGTR(t);  /*then pi[] has to be initialized somehow else*/
+    double probex = 0.0;
+    for (int i=0; i<4; i++){
+        for (int j=0; j<4; j++){
+            if (abs(i-j)==2){
+                probex += pi(i)*PMAT(i,j);
+            }
+        }
+    }
+    
+    for (int i=0; i<10; i++){
+        findgenotypes_from_index(i, g1);
+        for (int j=0; j<10; j++){
+            findgenotypes_from_index(j, g2);
+            like =0.0;
+            double countin = 0.0;
+            for (int k=0; k<2; k++){
+                for (int v=0; v<2; v++){
+                    if (abs(g1[k]-g2[v])!=2){
+                        like += log(pi(g1[k])*PMAT(g1[k],g2[v]));
+                        countin += 1.0;
+                    }
+                }
+            }
+            totlike += (like-countin*log(1-probex))*twoDSFS[i][j];
+        }
+    }
+    return -totlike;
+}
+
+//double likeGLwithtwoDSFSEx2(double twoDSFS[10][10], double t, double par[8]){
+//    int g1[2], g2[2];
+//    double like, totlike=0.0;
+//    double like1;
+//    //std::cout<<t<<"\n";
+//
+//    diagonalizeGTR(par); /*note that this code needs to be moved out of the function if JC or HKY functionality is used*/
+//    gettransitionprobmatGTR(t);  /*then pi[] has to be initialized somehow else*/
+//
+//    double ind1SFS[10], ind2SFS[10];
+//    for (int i=0; i<10; i++){
+//        ind1SFS[i] = 0;
+//        ind2SFS[i] = 0;
+//        for (int j=0; j<10; j++){
+//            ind1SFS[i] += twoDSFS[i][j];
+//            ind2SFS[i] += twoDSFS[j][i];
+//        }
+//    }
+//
+//    double probin = 0.0;
+//    double countin = 0.0;
+//    for (int i=0; i<10; i++){
+//        findgenotypes_from_index(i, g1);
+//        if ((g1[0]-g1[1])!=2){
+//            totlike += log(pi(g1[0])*PMAT(g1[0],g1[1]))*ind2SFS[i];
+//            countin += ind2SFS[i];
+//            if (g1[0]==g1[1]){
+//                probin  += pi(g1[0])*PMAT(g1[0],g1[1]);
+//            }else{
+//                probin  += 2*pi(g1[0])*PMAT(g1[0],g1[1]);
+//            }
+//        }
+//    }
+//
+//    totlike -= countin * log(probin);
+////    double probex = 0;
+////    for (int i=0; i<4; i++){
+////        for (int j=0; j<4; j++){
+////            if (abs(i-j)==2){
+////                probex += pi(i)*PMAT(i,j);
+////            }
+////        }
+////    }
+////
+////    for (int i=0; i<10; i++){
+////        findgenotypes_from_index(i, g1);
+////        for (int j=0; j<10; j++){
+////            findgenotypes_from_index(j, g2);
+////            like =0.0;
+////            double countin = 0.0;
+////            for (int k=0; k<2; k++){
+////                for (int v=0; v<2; v++){
+////                    if (abs(g1[k]-g2[v])!=2){
+////                        like += log(pi(g1[k])*PMAT(g1[k],g2[v]));
+////                        countin += 1.0;
+////                    }
+////                }
+////            }
+////            totlike += (like-countin*log(1-probex))*twoDSFS[i][j];
+////        }
+////    }
+//    return -totlike;
+//}
+
+//Inference: total likelihood based on the inferred joint genotype distribution.
 //Add in the tree structure
 double likeGLwithtwoDSFS_m(double twoDSFS[10][10], double t, double par[8], double t1, double t2)
 {
@@ -1308,6 +1411,16 @@ double likelihoodforT(double t)
     return likeGLwithtwoDSFS(GLOBtwoDSFS, t,  GLOBpar);
 }
 
+double likelihoodforTEx(double t)
+{
+    return likeGLwithtwoDSFSEx(GLOBtwoDSFS, t,  GLOBpar);
+}
+
+//double likelihoodforTEx2(double t)
+//{
+//    return likeGLwithtwoDSFSEx2(GLOBtwoDSFS, t,  GLOBpar);
+//}
+
 //Inference: Calculate the likelihood for divergence t, joint genotype distribution + tree structure
 double likelihoodforT_m(double t)
 {
@@ -1315,7 +1428,7 @@ double likelihoodforT_m(double t)
 }
 
 //Inference: Estimation of divergence time t based on joint genotype distribution
-double estimateT(double twoDSFS[10][10], double *t, double parameters[])
+double estimateT(double twoDSFS[10][10], double *t, double parameters[], int isex)
 {
     /*OK this is stupid*/
     for(int i=0;i<10;i++){
@@ -1327,7 +1440,13 @@ double estimateT(double twoDSFS[10][10], double *t, double parameters[])
         GLOBpar[i]=parameters[i];
     }
     
-    double MLV = brent(0.0000001, 0.1, 10.0, likelihoodforT, 0.000001, t);
+    double MLV;
+    if (isex == 0){
+       MLV = brent(0.0000001, 0.1, 10.0, likelihoodforT, 0.000001, t);
+    }else{
+       MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTEx, 0.000001, t);
+    }
+    
     //printf("Max. like value = %lf, t=%lf\n",MLV,*t);
     return MLV;
 }
@@ -1354,7 +1473,7 @@ double estimateT_m(double twoDSFS[10][10], double *t, double parameters[], doubl
 }
 
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
-double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], const char* glfname, int isthreading, int dobinary, int r)
+double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], const char* glfname, int isthreading, int dobinary, int isex, int r)
 {
     double **GLDATA, t, parameters[8], twoDSFS[10][10];
     int *SDATA;
@@ -1428,7 +1547,7 @@ double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2
     
     
     //Estimate T
-    estimateT(twoDSFS, &t, parameters);
+    estimateT(twoDSFS, &t, parameters, isex);
     std::cout<<"Estimated t = "<<t<<"\n";
     
     
@@ -1875,14 +1994,42 @@ double likeSEQwithtwoDSFS(double SEQ2DSFS[4][4], double t, double par[8])
     return -totlike;
 }
 
+double likeSEQwithtwoDSFSEx(double SEQ2DSFS[4][4], double t, double par[8])
+{
+    double totlike = 0.0;
+    diagonalizeGTR(par);
+    gettransitionprobmatGTR(t);  /*then pi[] has to be initialized somehow else*/
+    
+    double probex = 0;
+    double countex = 0;
+    for (int i=0; i<4; i++){
+        for (int j=0; j<4; j++){
+            if (abs(i-j)!=2){
+                totlike += log(pi(i)*PMAT(i,j))*SEQ2DSFS[i][j];
+            }else{
+                probex += pi(i)*PMAT(i,j);
+                countex += SEQ2DSFS[i][j];
+            }
+        }
+    }
+    totlike -= log(1-probex)*(1-countex);
+    return -totlike;
+}
+
 /*Inference: Calculate the likelihood for divergence t, joint selected nucleotide distribution*/
 double likelihoodforTSEQ2DSFS(double t)
 {
     return likeSEQwithtwoDSFS(GLOBSEQ2DSFS, t,  GLOBpar);
 }
 
+
+double likelihoodforTSEQ2DSFSEx(double t)
+{
+    return likeSEQwithtwoDSFSEx(GLOBSEQ2DSFS, t,  GLOBpar);
+}
+
 /*Inference: Estimation of divergence time t based on joint selected nucleotide distribution*/
-double estimateTSEQ2DSFS(double SEQ2DSFS[4][4], double *t, double parameters[])
+double estimateTSEQ2DSFS(double SEQ2DSFS[4][4], double *t, double parameters[], int isex)
 {
     /*OK this is stupid*/
     for(int i=0;i<4;i++){
@@ -1894,7 +2041,12 @@ double estimateTSEQ2DSFS(double SEQ2DSFS[4][4], double *t, double parameters[])
         GLOBpar[i]=parameters[i];
     }
     
-    double MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ2DSFS, 0.000001, t);
+    double MLV;
+    if (isex == 0){
+       MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ2DSFS, 0.000001, t);
+    }else{
+       MLV = brent(0.0000001, 0.1, 10.0, likelihoodforTSEQ2DSFSEx, 0.000001, t);
+    }
     //printf("Max. like value = %lf, t=%lf\n",MLV,*t);
     return MLV;
 }
@@ -2224,7 +2376,7 @@ double estimateNuc2DSFS_EM_threading(double SEQ2DSFS[4][4], vector<vector<double
  }
 
 /* Simulation + Inference: Simulation and estimation of divergence time t based on joint selected nucleotide distribution*/
-double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], int isthreading)
+double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], int isthreading, int isex)
 {
     double t, MLV, parameters[8];
     
@@ -2280,7 +2432,7 @@ double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, doubl
         estimateNuc2DSFS_EM(SEQ2DSFS, P0, P1, numsites);
     }
     
-    estimateTSEQ2DSFS(SEQ2DSFS, &t, parameters);
+    estimateTSEQ2DSFS(SEQ2DSFS, &t, parameters, isex);
     std::cout<<"Estimated t = "<<t<<"\n";
     
     for (size_t s = 0; s < numsites; s++){

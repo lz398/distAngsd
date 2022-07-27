@@ -463,7 +463,7 @@ double estimateNuc2DSFS_mpileup_EM_threading(double SEQ2DSFS[4][4], vector<kstri
      return d;
  }
 
-int mpileuptwoDSFS(gzFile gz, double par[9], int isthreading, int isuchar, int dobinary, int is2Dinfer, double &t, double &p){
+int mpileuptwoDSFS(gzFile gz, double par[9], int isthreading, int isuchar, int dobinary, int is2Dinfer, int isex, double &t, double &p){
     //size_t nsites = 0;
     vector<kstring_t> indiv0, indiv1, bq0, bq1;
     
@@ -496,7 +496,7 @@ int mpileuptwoDSFS(gzFile gz, double par[9], int isthreading, int isuchar, int d
             t = x[0];
             p = x[1];
         }else{
-            estimateTSEQ2DSFS(SEQ2DSFS, &t, parameters);
+            estimateTSEQ2DSFS(SEQ2DSFS, &t, parameters, isex);
         }
         for (int i=0;i<indiv0.size();i++){
             free(indiv0[i].s);

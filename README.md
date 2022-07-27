@@ -1,4 +1,4 @@
-# [![test](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml) distAngsd
+#a [![test](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml) distAngsd
 # This is a test version, and please let us know if there is any problem while running the code. Thanks a lot!
 ## Descriptions
 <strong>distAngsd</strong> is a software to simulate and infer phylogenetic relationships between two individuals, in which two novel methods (i.e., geno and nuc) are proposed. A bunch of other methods are also implemented, e.g., RandomSEQ, ConsensusSEQ, AmbiguityGT and NoAmbiguity for comparisons. The software can both conduct simulation and analyses real vcf/bcf file given reliable genotype likelihoods are calculated.
@@ -11,7 +11,7 @@ The code currently contains Makefile, io.cpp, bfgs.cpp, GLtest.cpp, GL2Dtest.cpp
 ### Compilation
 make distAngsd
 ### Run
-./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -e -tdiv -t1 -t2 -par
+./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -isex -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -e -tdiv -t1 -t2 -par
 
 One and only one of the following three options must be provided to specify whether to infer based on simulation or vcf file.
 * -vcf specifies the directory of input vcf files.
@@ -31,7 +31,7 @@ One and only one of the following three options must be provided to specify whet
 * -outglf specifies the directory of output genotype likelihoods files. If -outglf is not provided, genotype likelihoods files will not be saved. 
 
 * -is2Dinfer determines whether genetic distance t and invariable site proportion p_inv are jointly inferred. The default value is 0, which means, by default, only genetic distance t will be inferred on the assumption that all sites are variable.
-
+* -isex determines whether nucleotide transitions are excluded in the analysis. The default value is 0, which indicates nucleotide transitions are also included in the default analysis (It currently only work when -is2Dinfer is 0). 
 * -p_inv gives the simulated true p_inv. It should be provided if a 2-d simulation and inference is conducted.
 
 * -isthreading determines whether the EM algorithm is conducted parallelly. The default value is 0.

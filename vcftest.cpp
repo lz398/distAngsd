@@ -1593,7 +1593,7 @@ void plmatrixbuilder(){
 
 
 
-void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field, char *seek, double par[9], int isthreading, int isuchar,int dobinary, int is2Dinfer, double &t, double &p){
+void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, string vcf_format_field, string vcf_allele_field, char *seek, double par[9], int isthreading, int isuchar,int dobinary, int is2Dinfer, int isex, double &t, double &p){
     size_t nsites = 0;
     int nind;
     vector<double> freqs;
@@ -1654,7 +1654,7 @@ void vcftwoDSFS(char* fname, const char* glfname, int minind,double minfreq, str
         t = x[0];
         p = x[1];
     }else{
-        estimateT(twoDSFS, &t, parameters);
+        estimateT(twoDSFS, &t, parameters, isex);
     }
 }
 
@@ -1788,7 +1788,7 @@ void gls_read(const char* tabname, double **GLDATA, int isuchar, int dobinary){
     bgzf_close(fp);
 }
 
-void tabletwoDSFS(const char* tabname, double par[9], int isthreading, int inuchar, int inbinary, int is2Dinfer, double &t, double &p){
+void tabletwoDSFS(const char* tabname, double par[9], int isthreading, int inuchar, int inbinary, int is2Dinfer, int isex, double &t, double &p){
     //size_t nsites = 0;
     //int nind;
     double parameters[8], twoDSFS[10][10];
@@ -1845,7 +1845,7 @@ void tabletwoDSFS(const char* tabname, double par[9], int isthreading, int inuch
         t = x[0];
         p = x[1];
     }else{
-        estimateT(twoDSFS, &t, parameters);
+        estimateT(twoDSFS, &t, parameters,isex);
     }
 }
 //#ifdef __WITH_MAIN__

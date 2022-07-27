@@ -86,11 +86,11 @@ double likelihoodforT(double t);
 //Inference: Calculate the likelihood for divergence t, joint genotype distribution + tree structure
 double likelihoodforT_m(double t);
 //Inference: Estimation of divergence time t based on joint genotype distribution
-double estimateT(double twoDSFS[10][10], double *t, double parameters[]);
+double estimateT(double twoDSFS[10][10], double *t, double parameters[],int isex);
 /*Inference: Estimation of divergence time t based on joint genotype distribution + tree structure.*/
 double estimateT_m(double twoDSFS[10][10], double *t, double parameters[], double t1, double t2);
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution*/
-double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], const char* glfname, int isthreading, int dobinary, int r);
+double testtwoDSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], const char* glfname, int isthreading, int dobinary, int isex, int r);
 /*Simulation + Inference: Simulation and estimation of divergence time t based on joint genotype distribution + tree structure*/
 double testtwoDSFS_m(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate);
 
@@ -130,7 +130,7 @@ double likeSEQwithtwoDSFS(double SEQ2DSFS[4][4], double t, double par[8]);
 /*Inference: Calculate the likelihood for divergence t, joint selected nucleotide distribution*/
 double likelihoodforTSEQ2DSFS(double t);
 /*Inference: Estimation of divergence time t based on joint selected nucleotide distribution*/
-double estimateTSEQ2DSFS(double SEQ2DSFS[4][4], double *t, double parameters[]);
+double estimateTSEQ2DSFS(double SEQ2DSFS[4][4], double *t, double parameters[],int isex);
 //Inference: One EM step for joint selected nucleotide distribution
 void EMStepforNuc2DSFS(double SEQ2DSFS[4][4], double ESEQSFS2[4][4], vector<vector<double4> >&P0, vector<vector<double4> >&P1, size_t numsites, size_t &psum);
 // Inference: Accelerate EM step for joint selected nucleotide distribution
@@ -138,7 +138,7 @@ int EMAccelforNuc2DSFS(double SEQ2DSFS[4][4], double ESEQSFS2[4][4], vector<vect
 //Inference: Main EM algorithm for joint genotype distribution
 double estimateNuc2DSFS_EM(double SEQ2DSFS[4][4], vector<vector<double4> >&P0, vector<vector<double4> >&P1, size_t numsites);
 /* Simulation + Inference: Simulation and estimation of divergence time t based on joint selected nucleotide distribution*/
-double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], int isthreading);
+double testsimSEQ2DSFS(double RD, size_t numsites, double tdiv, double t1, double t2, double errorrate, double par[9], int isthreading, int isex);
 
 
 /* 5. Whole EM method for Inference*/

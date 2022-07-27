@@ -32,7 +32,7 @@ pars *pars_init(){
     p->model = strdup("JC");
     p->glfname = NULL;
     p->isthreading = 0;
-    
+    p->isex = 0;
     // Specify the model
     p->is2Dinfer = 0;
     for (int i=0;i<5;i++){
@@ -95,6 +95,7 @@ pars *get_pars(int argc,char **argv){
         else if(!strcasecmp("-t2",key)) p->t2=atof(val);
         else if(!strcasecmp("-p_inv",key)) p->p_inv=atof(val);
         else if(!strcasecmp("-isthreading",key)) p->isthreading=atoi(val);
+        else if(!strcasecmp("-isex",key)) p->isex=atoi(val);
         else if(!strcasecmp("-outuchar",key)) p->isuchar=atoi(val);
         else if(!strcasecmp("-outbin",key)) p->dobinary=atoi(val);
         else if(!strcasecmp("-inglf",key)) p->tabname=strdup(val);

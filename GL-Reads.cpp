@@ -43,8 +43,8 @@ std::string to_string_float(double d){
 
 int main(int argc,char**argv){
     if (argc == 1){
-        fprintf(stderr,"\t-> ./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -errorrate -tdiv -t1 -t2 -par\n");
-        fprintf(stderr,"\t-> Default method is geno, default model is JC.\n");
+        fprintf(stderr,"\t-> ./distAngsd -o -method -model -inglf -outglf -vcf -mpileup -simrep -is2Dinfer -isex -p_inv -isthreading -inbin -inuchar -outbin -outuchar -numsites -RD -errorrate -tdiv -t1 -t2 -par\n");
+        fprintf(stderr,"\t-> Default method is geno, default model is JC, default setting considers both transversions and transitions (isex=0).\n");
         fprintf(stderr,"\t-> Default number of sites for simulation (numsites) is 1000000, default mean read depth (RD) is 1.0, default calling error rate (errorrate) is 0.002,\n");
         fprintf(stderr,"\t-> default divergent time (tdiv) is 1.0, default t1 is 0.4, and default t2 is 0.25.\n");
         return 0;
@@ -61,6 +61,7 @@ int main(int argc,char**argv){
         int isthreading = ptr->isthreading;
         int dobinary = ptr->dobinary;
         int is2Dinfer = ptr->is2Dinfer;
+        int isex = ptr->isex;
         int simrep = ptr->simrep;
         double par[9];
         
@@ -109,8 +110,8 @@ int main(int argc,char**argv){
             }
 	    //            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
 	    //            str2 = str2 +  "\t" + to_string(isthreading) + "\t" + to_string(0) + "\t" + to_string(dobinary);
-	    snprintf(str1,4096,"%s\tThreading\tOut_uchar\tOut_binary",str1);
-	    snprintf(str2,4096,"%s\t%d\t0\t%d",str2,isthreading,dobinary);
+	    snprintf(str1,4096,"%s\tThreading\tExclude\tOut_uchar\tOut_binary",str1);
+	    snprintf(str2,4096,"%s\t%d\t%d\t0\t%d",str2,isthreading,isex,dobinary);
 	    
             string str = std::string(str1)+"\n"+std::string(str2)+"\n";
             cout<<str;
@@ -127,7 +128,7 @@ int main(int argc,char**argv){
                         SeedSetup();
                         //string repstr = "Random seed is " + to_string(seed) + "\n";
                         if (!strcasecmp(method,"geno")){
-                            testtwoDSFSWithInvSite(RD,numsites, p_inv, tdiv, t1, t2, errorrate, t, p, par, glfname, isthreading, dobinary, r);
+                            testtwoDSFSWithInvSite(RD,numsites, p_inv, tdiv, t1, t2, errorrate, t, p, par, glfname, isthreading, dobinary,r);
                             //t=testtwoDSFS(RD, numsites, tdiv, t1, t2, errorrate, par, glfname, isthreading, dobinary, r);
                         }else if(!strcasecmp(method,"nuc")){
                             testsimSEQ2DSFSWithInvSite(RD, numsites, p_inv, tdiv, t1, t2, errorrate, t, p, par, isthreading);
@@ -173,9 +174,9 @@ int main(int argc,char**argv){
                     SeedSetup();
                     //string repstr = "Random seed is " + to_string(seed) + "\n";
                     if (!strcasecmp(method,"geno")){
-                        t=testtwoDSFS(RD, numsites, tdiv, t1, t2, errorrate, par, glfname, isthreading, dobinary, r);
+                        t=testtwoDSFS(RD, numsites, tdiv, t1, t2, errorrate, par, glfname, isthreading, dobinary,isex, r);
                     }else if(!strcasecmp(method,"nuc")){
-                        t=testsimSEQ2DSFS(RD, numsites, tdiv, t1, t2, errorrate, par, isthreading);
+                        t=testsimSEQ2DSFS(RD, numsites, tdiv, t1, t2, errorrate, par, isthreading, isex);
                     }else if(!strcasecmp(method,"RandomSEQ")){
                         t=testsimSEQDATA_random(RD, numsites, tdiv, t1, t2, errorrate,par);
                     }else if(!strcasecmp(method,"ConsensusSEQ")){
@@ -214,8 +215,8 @@ int main(int argc,char**argv){
                 str1 = str1 + "\tis2Dinfer";
                 str2 = str2 + "\t" + to_string_int(is2Dinfer);
             }
-            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
-            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
+            str1 = str1 + "\tThreading" + "\tExclude" + "\tOut_uchar" + "\tOut_binary";
+            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t"+ to_string_int(isex) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
@@ -231,13 +232,13 @@ int main(int argc,char**argv){
             string pl=string("PL");
             string fr=string("AFngsrelate");
             char *reg=NULL;
-            vcftwoDSFS(vcfname, glfname, 2, 0.00, pl, fr,reg, par, isthreading,isuchar,dobinary,is2Dinfer,t,p);
+            vcftwoDSFS(vcfname, glfname, 2, 0.00, pl, fr,reg, par, isthreading,isuchar,dobinary,is2Dinfer,isex,t,p);
             string vcfstr;
             if (is2Dinfer == 1){
                 cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";
                 vcfstr = "Estimated t = " + to_string_float(t) + ".\t" + "Estimated p = " + to_string_float(p) + ".\n";
             }else{
-                cout<<"Estimated t = "<<t<<"\n";
+                cout<<"Estimated t = "<<t<<".\n";
                 vcfstr = "Estimated t = " + to_string_float(t) + ".\n";
             }
             if(dobinary)
@@ -258,8 +259,8 @@ int main(int argc,char**argv){
                 str1 = str1 + "\tis2Dinfer";
                 str2 = str2 + "\t" + to_string_int(is2Dinfer);
             }
-            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
-            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
+            str1 = str1 + "\tThreading" + "\tExclude" + "\tOut_uchar" + "\tOut_binary";
+            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(isex) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
@@ -278,7 +279,7 @@ int main(int argc,char**argv){
                 fprintf(stderr,"\t-> Problem opening inputfile or inputstream\n");
                 return 0;
             }
-            mpileuptwoDSFS(gz, par, isthreading, isuchar, dobinary, is2Dinfer, t, p);
+            mpileuptwoDSFS(gz, par, isthreading, isuchar, dobinary, is2Dinfer, isex, t, p);
             string mpileupstr;
             if (is2Dinfer == 1){
                 cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";
@@ -310,8 +311,8 @@ int main(int argc,char**argv){
                 str1 = str1 + "\tis2Dinfer";
                 str2 = str2 + "\t" + to_string_int(is2Dinfer);
             }
-            str1 = str1 + "\tThreading" + "\tOut_uchar" + "\tOut_binary";
-            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
+            str1 = str1 + "\tThreading" + "\tExclude" + "\tOut_uchar" + "\tOut_binary";
+            str2 = str2 +  "\t" + to_string_int(isthreading) + "\t" + to_string_int(isex)  + "\t" + to_string_int(0) + "\t" + to_string_int(dobinary);
             string str = str1+"\n"+str2+"\n";
             cout << str;
             if(dobinary)
@@ -322,7 +323,7 @@ int main(int argc,char**argv){
                 kstr->l = 0;
             }
             
-            tabletwoDSFS(tabname, par, isthreading, tabuchar, tabbinary, is2Dinfer, t, p);
+            tabletwoDSFS(tabname, par, isthreading, tabuchar, tabbinary, is2Dinfer, isex, t, p);
             string vcfstr;
             if (is2Dinfer == 1){
                 cout<<"Estimated t = "<<t<<".\t"<<"Estimated p = "<<p<<".\n";

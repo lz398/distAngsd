@@ -33,7 +33,7 @@ typedef struct{
     // Specify the model
     double par[9];
     int is2Dinfer;
-    
+    int isex;
     
     // For simulation
     int simrep;
