@@ -8,6 +8,8 @@ CSRC = $(wildcard *.c)
 CXXSRC = $(wildcard *.cpp)
 OBJ = $(CSRC:.c=.o) $(CXXSRC:.cpp=.o)
 
+LDFLAGS=-lz -llzma -lbz2 -lpthread -lcurl -lgsl -lcblas
+
 all: distAngsd
 
 .PHONY: all clean test
@@ -42,7 +44,7 @@ ifdef HTSSRC
 	$(CXX) -MM $(CXXFLAGS)  -I$(HTS_INCDIR)	-I$(EIGEN_INCDIR)	$*.cpp >$*.d
 
 distAngsd: $(OBJ)
-	$(CXX) $(FLAGS)  -o distAngsd *.o $(HTS_LIBDIR) -lz -llzma -lbz2 -lpthread -lcurl -lgsl
+	$(CXX) $(FLAGS)  -o distAngsd *.o $(HTS_LIBDIR) $(LDFLAGS)
 else
 %.o: %.c
 	$(CC) -c  $(CFLAGS) -I$(EIGEN_INCDIR) $*.c
@@ -53,7 +55,7 @@ else
 	$(CXX) -MM $(CXXFLAGS)	-I$(EIGEN_INCDIR)	$*.cpp >$*.d
 
 distAngsd: $(OBJ)
-	$(CXX) $(FLAGS)  -o distAngsd *.o -lz -llzma -lbz2 -lpthread -lcurl -lhts -lgsl
+	$(CXX) $(FLAGS)  -o distAngsd *.o $(LDFLAGS)
 endif
 else
 ifdef HTSSRC
@@ -66,7 +68,7 @@ ifdef HTSSRC
 	$(CXX) -MM $(CXXFLAGS)  -I$(HTS_INCDIR)	$*.cpp >$*.d
 
 distAngsd: $(OBJ)
-	$(CXX) $(FLAGS)  -o distAngsd *.o $(HTS_LIBDIR) -lz -llzma -lbz2 -lpthread -lcurl -lgsl
+	$(CXX) $(FLAGS)  -o distAngsd *.o $(HTS_LIBDIR) $(LDFLAGS)
 else
 %.o: %.c
 	$(CC) -c  $(CFLAGS) $*.c
@@ -77,7 +79,7 @@ else
 	$(CXX) -MM $(CXXFLAGS)	$*.cpp >$*.d
 
 distAngsd: $(OBJ)
-	$(CXX) $(FLAGS)  -o distAngsd *.o -lz -llzma -lbz2 -lpthread -lcurl -lhts -lgsl
+	$(CXX) $(FLAGS)  -o distAngsd *.o -lz $(LDFLAGS)
 endif
 endif
 
