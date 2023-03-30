@@ -8,7 +8,7 @@ CSRC = $(wildcard *.c)
 CXXSRC = $(wildcard *.cpp)
 OBJ = $(CSRC:.c=.o) $(CXXSRC:.cpp=.o)
 
-LDFLAGS=-lz -llzma -lbz2 -lpthread -lcurl -lgsl -lcblas
+LDFLAGS=-lz -llzma -lbz2 -lpthread -lcurl -lgsl
 
 all: distAngsd
 
