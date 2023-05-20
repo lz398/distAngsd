@@ -1,4 +1,4 @@
-#distAngsd
+# distAngsd
 
 [![test](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml)
 
