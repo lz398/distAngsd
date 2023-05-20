@@ -1,4 +1,6 @@
-[![test](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml) distAngsd
+#distAngsd
+
+[![test](https://github.com/lz398/distAngsd/actions/workflows/make.yml/badge.svg)](https://github.com/lz398/distAngsd/actions/workflows/make.yml)
 
 # This is a test version, and please let us know if there is any problem while running the code. Thanks a lot!
 ## Descriptions
